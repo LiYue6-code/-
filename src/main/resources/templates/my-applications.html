@@ -17,21 +17,35 @@
                 <th>招聘单位</th>
                 <th>申请时间</th>
                 <th>审核状态</th>
+                <th>面试时间</th>
                 <th>面试结果</th>
                 <th>录用状态</th>
+                <th>进度</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="a : ${applications}">
                 <td th:text="${a.jobTitle}"></td>
                 <td th:text="${a.companyName}"></td>
-                <td th:text="${#temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
-                <td th:text="${a.status}"></td>
+                <td th:text="${a.applyTime == null ? '' : #temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.status == '待审核' ? 'badge-warn' : (a.status == '通过' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${a.status}"></span>
+                </td>
+                <td th:text="${a.interviewTime == null ? '待安排' : #temporals.format(a.interviewTime, 'yyyy-MM-dd HH:mm')}"></td>
                 <td th:text="${a.interviewResult}"></td>
-                <td th:text="${a.hireStatus}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.hireStatus == '已录用' ? 'badge-success' : 'badge-gray'}"
+                          th:text="${a.hireStatus}"></span>
+                </td>
+                <td class="ops">
+                    <a class="btn btn-gray btn-sm" th:href="@{/my/applications/{id}/progress(id=${a.id})}">查看进度</a>
+                </td>
             </tr>
             <tr th:if="${#lists.isEmpty(applications)}">
-                <td colspan="6" style="text-align:center;">暂无申请记录</td>
+                <td colspan="8" style="text-align:center;">暂无申请记录</td>
             </tr>
             </tbody>
         </table>

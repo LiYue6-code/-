@@ -9,11 +9,16 @@
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
     <h1>就业信息上报</h1>
-    <div class="card">
+
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+
+    <!-- 上报表单：已有“待审核/已确认”记录时不再重复上报 -->
+    <div class="card" th:if="${canReport}">
         <form th:action="@{/my/employment}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="_csrf" th:value="${_csrf}">
             <div class="form-group">
-                <label>就业单位</label>
+                <label>就业单位 <span class="required">*</span></label>
                 <input type="text" name="companyName" required>
             </div>
             <div class="form-group">
@@ -26,9 +31,42 @@
             </div>
             <div class="form-group">
                 <label>证明材料</label>
-                <input type="file" name="proofFile">
+                <input type="file" name="proofFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                <span class="muted">支持 PDF/图片/Word，不超过 5MB，如录用函、三方协议</span>
             </div>
             <button type="submit" class="btn">提交</button>
+        </form>
+    </div>
+    <div class="card" th:if="${!canReport}">
+        <span class="muted">你已有一条待审核或已确认的就业信息，无需重复上报。</span>
+    </div>
+
+    <!-- 被退回后：修改并重新上报 -->
+    <div class="card" th:if="${returned != null}">
+        <h2>补正后重新上报</h2>
+        <p class="error" th:if="${returned.reviewComment != null}"
+           th:text="|退回意见：${returned.reviewComment}|"></p>
+        <form th:action="@{/my/employment/{id}/resubmit(id=${returned.id})}" method="post"
+              enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
+            <div class="form-group">
+                <label>就业单位 <span class="required">*</span></label>
+                <input type="text" name="companyName" required th:value="${returned.companyName}">
+            </div>
+            <div class="form-group">
+                <label>岗位</label>
+                <input type="text" name="position" th:value="${returned.position}">
+            </div>
+            <div class="form-group">
+                <label>薪资待遇</label>
+                <input type="text" name="salary" th:value="${returned.salary}">
+            </div>
+            <div class="form-group">
+                <label>重新上传证明</label>
+                <input type="file" name="proofFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                <span class="muted">不选择则沿用原证明材料</span>
+            </div>
+            <button type="submit" class="btn">重新提交</button>
         </form>
     </div>
 
@@ -44,6 +82,7 @@
                 <th>状态</th>
                 <th>审核意见</th>
                 <th>上报时间</th>
+                <th>进度</th>
             </tr>
             </thead>
             <tbody>
@@ -51,13 +90,25 @@
                 <td th:text="${e.companyName}"></td>
                 <td th:text="${e.position}"></td>
                 <td th:text="${e.salary}"></td>
-                <td th:text="${e.proofFile}"></td>
-                <td th:text="${e.status}"></td>
+                <td>
+                    <a th:if="${e.proofFile != null}"
+                       th:href="@{/my/employment/{id}/proof(id=${e.id})}"
+                       th:text="${e.proofName == null ? '查看材料' : e.proofName}"></a>
+                    <span th:if="${e.proofFile == null}" class="muted">未上传</span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${e.status == '待审核' ? 'badge-warn' : (e.status == '已确认' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${e.status}"></span>
+                </td>
                 <td th:text="${e.reviewComment}"></td>
-                <td th:text="${#temporals.format(e.submitTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${e.submitTime == null ? '' : #temporals.format(e.submitTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="ops">
+                    <a class="btn btn-gray btn-sm" th:href="@{/my/employment/{id}/progress(id=${e.id})}">查看进度</a>
+                </td>
             </tr>
             <tr th:if="${#lists.isEmpty(list)}">
-                <td colspan="7" style="text-align:center;">暂无上报记录</td>
+                <td colspan="8" style="text-align:center;">暂无上报记录</td>
             </tr>
             </tbody>
         </table>

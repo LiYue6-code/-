@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>就业信息审核详情 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <div class="page-header">
+        <h1>就业信息审核</h1>
+        <a class="btn btn-gray btn-sm" th:href="@{/admin/employment}">返回列表</a>
+    </div>
+
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+
+    <div class="card">
+        <div class="kv">
+            <div><span>学生</span><b th:text="${info.studentName}"></b></div>
+            <div><span>学号</span><b th:text="${info.studentNo}"></b></div>
+            <div><span>就业单位</span><b th:text="${info.companyName}"></b></div>
+            <div><span>岗位</span><b th:text="${info.position}"></b></div>
+            <div><span>薪资待遇</span><b th:text="${info.salary}"></b></div>
+            <div><span>上报时间</span><b
+                    th:text="${info.submitTime == null ? '' : #temporals.format(info.submitTime, 'yyyy-MM-dd HH:mm')}"></b>
+            </div>
+            <div><span>当前状态</span>
+                <b>
+                    <span class="badge"
+                          th:classappend="${info.status == '待审核' ? 'badge-warn' : (info.status == '已确认' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${info.status}"></span>
+                </b>
+            </div>
+            <div><span>重报次数</span><b th:text="${info.resubmitCount == null ? 0 : info.resubmitCount}"></b></div>
+            <div><span>审核人</span><b th:text="${info.reviewerName == null ? '—' : info.reviewerName}"></b></div>
+            <div><span>审核时间</span><b
+                    th:text="${info.reviewTime == null ? '—' : #temporals.format(info.reviewTime, 'yyyy-MM-dd HH:mm')}"></b>
+            </div>
+            <div><span>上次意见</span><b th:text="${info.reviewComment == null ? '—' : info.reviewComment}"></b></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>证明材料</h2>
+        <div th:if="${info.proofFile != null}">
+            <a class="btn btn-sm"
+               th:href="@{/admin/employment/{id}/proof(id=${info.id})}"
+               th:text="|下载 / 查看 ${info.proofName == null ? '证明材料' : info.proofName}|"></a>
+            <span class="muted">（支持 PDF、图片、Word）</span>
+        </div>
+        <div th:if="${info.proofFile == null}" class="muted">学生未上传证明材料</div>
+    </div>
+
+    <div class="card">
+        <h2>审核操作</h2>
+        <div th:if="${canConfirm or canReturn}">
+            <form method="post" th:action="@{/admin/employment/{id}/review(id=${info.id})}">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-group">
+                    <label>审核意见</label>
+                    <textarea name="comment" rows="2" placeholder="确认通过可选填；退回补正时必填"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" name="confirmed" value="true" class="btn btn-green">确认通过</button>
+                    <button type="submit" name="confirmed" value="false" class="btn btn-red">退回补正</button>
+                </div>
+                <div class="muted" style="margin-top:6px;">退回时请写明需要补正的内容，学生修改后可重新上报。</div>
+            </form>
+        </div>
+        <div th:if="${!canConfirm and !canReturn}" class="muted"
+             th:text="|该记录已审核完成（当前：${info.status}），不可重复操作|"></div>
+    </div>
+
+    <div class="card">
+        <h2>处理时间线</h2>
+        <ul class="timeline">
+            <li th:each="log : ${logs}">
+                <div class="tl-time"
+                     th:text="${log.createdAt == null ? '' : #temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+                <div class="tl-body">
+                    <span class="tl-action" th:text="${log.actionLabel}"></span>
+                    <span class="badge badge-gray" th:text="|${log.fromStatus} → ${log.toStatus}|"></span>
+                    <div class="tl-meta" th:text="|操作人：${log.operatorName == null ? '系统' : log.operatorName}|"></div>
+                    <div class="tl-comment" th:if="${log.comment != null}" th:text="${log.comment}"></div>
+                </div>
+            </li>
+        </ul>
+        <div th:if="${#lists.isEmpty(logs)}" class="muted">暂无操作记录</div>
+    </div>
+</div>
+</body>
+</html>

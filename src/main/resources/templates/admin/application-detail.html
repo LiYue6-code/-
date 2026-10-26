@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>申请审核详情 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <div class="page-header">
+        <h1>申请审核详情</h1>
+        <a class="btn btn-gray btn-sm" th:href="@{/admin/applications}">返回列表</a>
+    </div>
+
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+
+    <!-- 基本信息 -->
+    <div class="card">
+        <div class="kv">
+            <div><span>学生</span><b th:text="${app.studentName}"></b></div>
+            <div><span>学号</span><b th:text="${app.studentNo}"></b></div>
+            <div><span>岗位</span><b th:text="${app.jobTitle}"></b></div>
+            <div><span>招聘单位</span><b th:text="${app.companyName}"></b></div>
+            <div><span>申请时间</span><b
+                    th:text="${app.applyTime == null ? '' : #temporals.format(app.applyTime, 'yyyy-MM-dd HH:mm')}"></b>
+            </div>
+            <div><span>当前状态</span>
+                <b>
+                    <span class="badge"
+                          th:classappend="${app.status == '待审核' ? 'badge-warn' : (app.status == '通过' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${app.status}"></span>
+                    <span class="badge badge-gray" th:text="${app.interviewResult}"></span>
+                    <span class="badge"
+                          th:classappend="${app.hireStatus == '已录用' ? 'badge-success' : 'badge-gray'}"
+                          th:text="${app.hireStatus}"></span>
+                </b>
+            </div>
+            <div><span>审核人</span><b th:text="${app.reviewerName == null ? '—' : app.reviewerName}"></b></div>
+            <div><span>最近审核</span><b
+                    th:text="${app.reviewTime == null ? '—' : #temporals.format(app.reviewTime, 'yyyy-MM-dd HH:mm')}"></b>
+            </div>
+            <div th:if="${app.rejectReason != null}"><span>不通过原因</span><b th:text="${app.rejectReason}"></b></div>
+            <div th:if="${app.interviewPlace != null}"><span>面试地点</span><b th:text="${app.interviewPlace}"></b></div>
+        </div>
+    </div>
+
+    <!-- 1. 初审 -->
+    <div class="card">
+        <h2>① 初审</h2>
+
+        <div th:if="${canApprove}">
+            <form method="post" th:action="@{/admin/applications/{id}/approve(id=${app.id})}">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-group">
+                    <label>审核意见</label>
+                    <textarea name="comment" rows="2" placeholder="可选，如：专业对口，进入面试"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-green">初审通过</button>
+                </div>
+            </form>
+            <hr class="hr">
+            <form method="post" th:action="@{/admin/applications/{id}/reject(id=${app.id})}">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-group">
+                    <label>不通过原因 <span class="required">*</span></label>
+                    <input type="text" name="reason" required placeholder="必填，学生可看到此原因">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-red">初审不通过</button>
+                </div>
+            </form>
+        </div>
+        <div th:if="${!canApprove}" class="muted" th:text="|初审已完成（当前：${app.status}），不可重复操作|"></div>
+    </div>
+
+    <!-- 2. 面试 -->
+    <div class="card">
+        <h2>② 面试登记</h2>
+
+        <div th:if="${canSchedule}">
+            <form method="post" th:action="@{/admin/applications/{id}/schedule(id=${app.id})}">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>面试时间 <span class="required">*</span></label>
+                        <input type="datetime-local" name="interviewTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>面试地点 / 方式</label>
+                        <input type="text" name="place" placeholder="如：行政楼 302 / 腾讯会议">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">保存面试安排</button>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${canInterview}">
+            <div class="muted">
+                已安排面试：
+                <span th:text="${app.interviewTime == null ? '—' : #temporals.format(app.interviewTime, 'yyyy-MM-dd HH:mm')}"></span>
+                <span th:if="${app.interviewPlace != null}" th:text="|（${app.interviewPlace}）|"></span>
+            </div>
+            <form method="post" th:action="@{/admin/applications/{id}/interview(id=${app.id})}"
+                  style="margin-top:10px;">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-group">
+                    <label>面试备注</label>
+                    <input type="text" name="comment" placeholder="可选">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" name="passed" value="true" class="btn btn-green">面试通过</button>
+                    <button type="submit" name="passed" value="false" class="btn btn-red">面试未通过</button>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${!canSchedule and !canInterview}" class="muted"
+             th:text="|面试环节当前状态：${app.interviewResult}|"></div>
+    </div>
+
+    <!-- 3. 录用 -->
+    <div class="card">
+        <h2>③ 录用登记</h2>
+        <div th:if="${canHire or canNoHire}">
+            <form method="post" th:action="@{/admin/applications/{id}/hire(id=${app.id})}">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-group">
+                    <label>录用说明</label>
+                    <input type="text" name="comment" placeholder="可选，如：已签三方协议">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" name="hired" value="true" class="btn btn-green">登记为已录用</button>
+                    <button type="submit" name="hired" value="false" class="btn btn-gray">登记为未录用</button>
+                </div>
+            </form>
+        </div>
+        <div th:if="${!canHire and !canNoHire}" class="muted"
+             th:text="|暂不可登记录用结果（需先完成面试通过，当前：${app.interviewResult} / ${app.hireStatus}）|"></div>
+    </div>
+
+    <!-- 处理时间线 -->
+    <div class="card">
+        <h2>处理时间线</h2>
+        <ul class="timeline">
+            <li th:each="log : ${logs}">
+                <div class="tl-time"
+                     th:text="${log.createdAt == null ? '' : #temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+                <div class="tl-body">
+                    <span class="tl-action" th:text="${log.actionLabel}"></span>
+                    <span class="badge badge-gray" th:text="|${log.fromStatus} → ${log.toStatus}|"></span>
+                    <div class="tl-meta" th:text="|操作人：${log.operatorName == null ? '系统' : log.operatorName}|"></div>
+                    <div class="tl-comment" th:if="${log.comment != null}" th:text="${log.comment}"></div>
+                </div>
+            </li>
+        </ul>
+        <div th:if="${#lists.isEmpty(logs)}" class="muted">暂无操作记录</div>
+    </div>
+</div>
+</body>
+</html>

@@ -8,11 +8,149 @@
 <body>
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
-    <h1>查询统计</h1>
+    <div class="page-header">
+        <h1>查询统计</h1>
+        <div class="ops">
+            <a class="btn btn-gray btn-sm"
+               th:href="@{/admin/statistics/export(start=${start},end=${end})}">导出统计报表 CSV</a>
+        </div>
+    </div>
+
+    <form class="card toolbar" method="get" th:action="@{/admin/statistics}">
+        <label class="muted">申请时间范围</label>
+        <input type="date" name="start" th:value="${start}">
+        <span class="muted">至</span>
+        <input type="date" name="end" th:value="${end}">
+        <button type="submit" class="btn">统计</button>
+        <a class="btn btn-gray" th:href="@{/admin/statistics}">全部</a>
+        <span class="muted">（时间范围影响申请相关指标，就业与基础数据始终全量统计）</span>
+    </form>
+
+    <!-- 概览 -->
     <div class="stat-grid">
-        <div class="stat-box" th:each="entry : ${stats}">
-            <div class="num" th:text="${entry.value}"></div>
-            <div class="label" th:text="${entry.key}"></div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.students}"></div>
+            <div class="label">学生数</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.companies}"></div>
+            <div class="label">招聘单位数</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.jobs}"></div>
+            <div class="label">岗位数</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.applications}"></div>
+            <div class="label">申请数</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.hired}"></div>
+            <div class="label">已录用数</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.employmentConfirmed}"></div>
+            <div class="label">就业信息已确认</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.employmentPending}"></div>
+            <div class="label">就业信息待审核</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${overview.employmentRateText}"></div>
+            <div class="label">就业率（已确认/学生数）</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <!-- 岗位申请量 -->
+        <div class="card">
+            <h2>岗位申请量 Top10</h2>
+            <div class="barlist" th:if="${!#lists.isEmpty(jobRank)}">
+                <div class="bar-row" th:each="i : ${jobRank}">
+                    <div class="bar-label" th:text="${i.label}" th:title="${i.extra}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill" th:style="|width:${i.percent}%|"></div>
+                    </div>
+                    <div class="bar-value" th:text="${i.amount}"></div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(jobRank)}" class="muted">暂无数据</div>
+        </div>
+
+        <!-- 单位招聘量 -->
+        <div class="card">
+            <h2>招聘单位申请量 Top10</h2>
+            <div class="barlist" th:if="${!#lists.isEmpty(companyRank)}">
+                <div class="bar-row" th:each="i : ${companyRank}">
+                    <div class="bar-label" th:text="${i.label}" th:title="${i.extra}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill-green" th:style="|width:${i.percent}%|"></div>
+                    </div>
+                    <div class="bar-value" th:text="${i.amount}"></div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(companyRank)}" class="muted">暂无数据</div>
+        </div>
+
+        <!-- 专业分布 -->
+        <div class="card">
+            <h2>专业分布（按申请数）</h2>
+            <div class="barlist" th:if="${!#lists.isEmpty(majorDistribution)}">
+                <div class="bar-row" th:each="i : ${majorDistribution}">
+                    <div class="bar-label" th:text="${i.label}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill-orange" th:style="|width:${i.percent}%|"></div>
+                    </div>
+                    <div class="bar-value" th:text="${i.amount}"></div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(majorDistribution)}" class="muted">暂无数据</div>
+        </div>
+
+        <!-- 月度趋势 -->
+        <div class="card">
+            <h2>申请月度趋势</h2>
+            <div class="barlist" th:if="${!#lists.isEmpty(monthlyTrend)}">
+                <div class="bar-row" th:each="i : ${monthlyTrend}">
+                    <div class="bar-label" th:text="${i.label}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill-purple" th:style="|width:${i.percent}%|"></div>
+                    </div>
+                    <div class="bar-value" th:text="${i.amount}"></div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(monthlyTrend)}" class="muted">暂无数据</div>
+        </div>
+
+        <!-- 申请状态分布 -->
+        <div class="card">
+            <h2>申请审核状态分布</h2>
+            <div class="barlist" th:if="${!#lists.isEmpty(applicationStatus)}">
+                <div class="bar-row" th:each="i : ${applicationStatus}">
+                    <div class="bar-label" th:text="${i.label}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill" th:style="|width:${i.percent}%|"></div>
+                    </div>
+                    <div class="bar-value" th:text="${i.amount}"></div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(applicationStatus)}" class="muted">暂无数据</div>
+        </div>
+
+        <!-- 就业去向 -->
+        <div class="card">
+            <h2>就业去向分布（已确认）</h2>
+            <div class="barlist" th:if="${!#lists.isEmpty(destination)}">
+                <div class="bar-row" th:each="i : ${destination}">
+                    <div class="bar-label" th:text="${i.label}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill-green" th:style="|width:${i.percent}%|"></div>
+                    </div>
+                    <div class="bar-value" th:text="${i.amount}"></div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(destination)}" class="muted">暂无数据</div>
         </div>
     </div>
 </div>

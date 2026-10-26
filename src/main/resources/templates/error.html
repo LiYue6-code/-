@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>系统提示 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <div class="card">
+        <h1 th:text="${status != null ? '请求处理失败（' + status + '）' : '操作未完成'}">操作未完成</h1>
+        <p class="error" th:text="${message == null or #strings.isEmpty(message) ? (error != null ? error : '系统处理出现异常，请稍后重试。') : message}">
+            系统处理出现异常。
+        </p>
+        <div class="form-actions">
+            <a class="btn" href="javascript:history.back()">返回上一页</a>
+            <a class="btn btn-gray" th:href="@{/home}">回到首页</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -8,7 +8,34 @@
 <body>
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
-    <h1>申请审核</h1>
+    <div class="page-header">
+        <h1>申请审核</h1>
+        <div class="ops">
+            <a class="btn btn-gray btn-sm"
+               th:href="@{/admin/applications/export(keyword=${keyword},status=${status},from=${from},to=${to})}">导出 CSV</a>
+        </div>
+    </div>
+
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+
+    <form class="card toolbar" method="get" th:action="@{/admin/applications}">
+        <input type="text" name="keyword" placeholder="学生姓名 / 学号 / 岗位 / 单位"
+               th:value="${keyword}">
+        <select name="status">
+            <option value="" th:selected="${status == null or status == ''}">全部状态</option>
+            <option value="待审核" th:selected="${status == '待审核'}">待审核</option>
+            <option value="通过" th:selected="${status == '通过'}">初审通过</option>
+            <option value="未通过" th:selected="${status == '未通过'}">初审未通过</option>
+        </select>
+        <label class="muted">申请时间</label>
+        <input type="date" name="from" th:value="${from}">
+        <span class="muted">至</span>
+        <input type="date" name="to" th:value="${to}">
+        <button type="submit" class="btn">查询</button>
+        <a class="btn btn-gray" th:href="@{/admin/applications}">重置</a>
+    </form>
+
     <div class="card">
         <table>
             <thead>
@@ -18,44 +45,52 @@
                 <th>岗位</th>
                 <th>招聘单位</th>
                 <th>申请时间</th>
-                <th>状态</th>
-                <th>面试结果</th>
-                <th>录用状态</th>
-                <th>审核操作</th>
+                <th>初审</th>
+                <th>面试</th>
+                <th>录用</th>
+                <th>操作</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="a : ${applications}">
+            <tr th:each="a : ${pageData.items}">
                 <td th:text="${a.studentName}"></td>
                 <td th:text="${a.studentNo}"></td>
                 <td th:text="${a.jobTitle}"></td>
                 <td th:text="${a.companyName}"></td>
-                <td th:text="${#temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
-                <td th:text="${a.status}"></td>
-                <td th:text="${a.interviewResult}"></td>
-                <td th:text="${a.hireStatus}"></td>
+                <td th:text="${a.applyTime == null ? '' : #temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <form th:action="@{/admin/applications/{id}/review(id=${a.id})}" method="post" style="display:inline;">
-                        <input type="hidden" name="_csrf" th:value="${_csrf}">
-                        <select name="status">
-                            <option value="通过">通过</option>
-                            <option value="未通过">未通过</option>
-                        </select>
-                        <input type="text" name="interviewResult" placeholder="面试结果">
-                        <select name="hireStatus">
-                            <option value="">录用状态</option>
-                            <option value="已录用">已录用</option>
-                            <option value="未录用">未录用</option>
-                        </select>
-                        <button type="submit" class="btn">保存</button>
-                    </form>
+                    <span class="badge"
+                          th:classappend="${a.status == '待审核' ? 'badge-warn' : (a.status == '通过' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${a.status}"></span>
+                </td>
+                <td th:text="${a.interviewResult}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.hireStatus == '已录用' ? 'badge-success' : 'badge-gray'}"
+                          th:text="${a.hireStatus}"></span>
+                </td>
+                <td class="ops">
+                    <a class="btn btn-sm" th:href="@{/admin/applications/{id}(id=${a.id})}">审核详情</a>
                 </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(applications)}">
-                <td colspan="9" style="text-align:center;">暂无申请</td>
+            <tr th:if="${#lists.isEmpty(pageData.items)}">
+                <td colspan="9" style="text-align:center;">没有符合条件的申请记录</td>
             </tr>
             </tbody>
         </table>
+
+        <div class="pagination" th:if="${pageData.totalPages > 1}">
+            <a th:if="${pageData.hasPrev}"
+               th:href="@{/admin/applications(page=${pageData.page - 1},keyword=${keyword},status=${status},from=${from},to=${to})}">上一页</a>
+            <a th:each="p : ${pageData.pageNumbers}"
+               th:classappend="${p == pageData.page ? 'current' : ''}"
+               th:href="@{/admin/applications(page=${p},keyword=${keyword},status=${status},from=${from},to=${to})}"
+               th:text="${p}"></a>
+            <a th:if="${pageData.hasNext}"
+               th:href="@{/admin/applications(page=${pageData.page + 1},keyword=${keyword},status=${status},from=${from},to=${to})}">下一页</a>
+        </div>
+        <div class="muted" style="margin-top:8px;"
+             th:text="|共 ${pageData.total} 条，第 ${pageData.page} / ${pageData.totalPages} 页|"></div>
     </div>
 </div>
 </body>
