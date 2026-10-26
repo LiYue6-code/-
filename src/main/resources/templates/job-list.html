@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>岗位列表 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>招聘岗位</h1>
+    <div class="card">
+        <form th:action="@{/jobs}" method="get" style="margin-bottom:12px;">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="按岗位名称或单位搜索" style="width:300px;">
+            <button type="submit" class="btn">搜索</button>
+        </form>
+        <table>
+            <thead>
+            <tr>
+                <th>岗位名称</th>
+                <th>招聘单位</th>
+                <th>薪资待遇</th>
+                <th>招聘人数</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="job : ${jobs}">
+                <td th:text="${job.title}"></td>
+                <td th:text="${job.companyName}"></td>
+                <td th:text="${job.salary}"></td>
+                <td th:text="${job.headcount}"></td>
+                <td th:text="${job.status}"></td>
+                <td><a class="btn" th:href="@{/jobs/{id}(id=${job.id})}">查看</a></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(jobs)}">
+                <td colspan="6" style="text-align:center;">暂无岗位</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

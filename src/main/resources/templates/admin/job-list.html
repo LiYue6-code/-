@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>岗位管理 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>岗位管理</h1>
+    <div class="card">
+        <a class="btn" th:href="@{/admin/jobs/new}">发布岗位</a>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>岗位</th>
+                <th>招聘单位</th>
+                <th>薪资</th>
+                <th>人数</th>
+                <th>状态</th>
+                <th>发布时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="j : ${jobs}">
+                <td th:text="${j.id}"></td>
+                <td th:text="${j.title}"></td>
+                <td th:text="${j.companyName}"></td>
+                <td th:text="${j.salary}"></td>
+                <td th:text="${j.headcount}"></td>
+                <td th:text="${j.status}"></td>
+                <td th:text="${#temporals.format(j.publishTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <form th:if="${j.status == '招聘中'}" th:action="@{/admin/jobs/{id}/offline(id=${j.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-gray">下架</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(jobs)}">
+                <td colspan="8" style="text-align:center;">暂无岗位</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>申请审核 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>申请审核</h1>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>学生</th>
+                <th>学号</th>
+                <th>岗位</th>
+                <th>招聘单位</th>
+                <th>申请时间</th>
+                <th>状态</th>
+                <th>面试结果</th>
+                <th>录用状态</th>
+                <th>审核操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${applications}">
+                <td th:text="${a.studentName}"></td>
+                <td th:text="${a.studentNo}"></td>
+                <td th:text="${a.jobTitle}"></td>
+                <td th:text="${a.companyName}"></td>
+                <td th:text="${#temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${a.status}"></td>
+                <td th:text="${a.interviewResult}"></td>
+                <td th:text="${a.hireStatus}"></td>
+                <td>
+                    <form th:action="@{/admin/applications/{id}/review(id=${a.id})}" method="post" style="display:inline;">
+                        <select name="status">
+                            <option value="通过">通过</option>
+                            <option value="未通过">未通过</option>
+                        </select>
+                        <input type="text" name="interviewResult" placeholder="面试结果">
+                        <select name="hireStatus">
+                            <option value="">录用状态</option>
+                            <option value="已录用">已录用</option>
+                            <option value="未录用">未录用</option>
+                        </select>
+                        <button type="submit" class="btn">保存</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(applications)}">
+                <td colspan="9" style="text-align:center;">暂无申请</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

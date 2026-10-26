@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>查询统计 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>查询统计</h1>
+    <div class="stat-grid">
+        <div class="stat-box" th:each="entry : ${stats}">
+            <div class="num" th:text="${entry.value}"></div>
+            <div class="label" th:text="${entry.key}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

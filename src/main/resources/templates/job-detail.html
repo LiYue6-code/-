@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>岗位详情 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1 th:text="${job.title}">岗位详情</h1>
+    <div class="card">
+        <p th:if="${error}" class="error" th:text="${error}"></p>
+        <p><strong>招聘单位：</strong><span th:text="${job.companyName}"></span></p>
+        <p><strong>薪资待遇：</strong><span th:text="${job.salary}"></span></p>
+        <p><strong>招聘人数：</strong><span th:text="${job.headcount}"></span></p>
+        <p><strong>任职要求：</strong><span th:text="${job.requirement}"></span></p>
+        <p><strong>岗位描述：</strong><span th:text="${job.description}"></span></p>
+        <p><strong>发布时间：</strong><span th:text="${#temporals.format(job.publishTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <form th:action="@{/jobs/{id}/apply(id=${job.id})}" method="post" style="margin-top:12px;">
+            <button type="submit" class="btn">申请该岗位</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

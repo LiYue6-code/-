@@ -1,0 +1,163 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f5f6fa;
+    color: #333;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2c3e50;
+    color: #fff;
+    padding: 12px 24px;
+    flex-wrap: wrap;
+}
+
+.nav .brand {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.nav a {
+    color: #fff;
+    margin-left: 14px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+.nav .user {
+    margin-left: 14px;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    margin-bottom: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    background: #fff;
+}
+
+th, td {
+    border: 1px solid #e2e5ea;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #f0f2f5;
+}
+
+.btn {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background: #2980b9;
+}
+
+.btn-gray {
+    background: #95a5a6;
+}
+
+.btn-red {
+    background: #e74c3c;
+}
+
+.btn-red:hover {
+    background: #c0392b;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: inline-block;
+    width: 110px;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 6px 8px;
+    width: 280px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.error {
+    color: #e74c3c;
+    margin: 8px 0;
+}
+
+.success {
+    color: #27ae60;
+    margin: 8px 0;
+}
+
+.stat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.stat-box {
+    flex: 1;
+    min-width: 150px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-box .num {
+    font-size: 34px;
+    color: #3498db;
+    font-weight: bold;
+}
+
+.stat-box .label {
+    color: #666;
+    margin-top: 6px;
+}

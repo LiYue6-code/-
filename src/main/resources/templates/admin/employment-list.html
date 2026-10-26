@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>就业审核 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>就业信息审核</h1>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>学生</th>
+                <th>学号</th>
+                <th>就业单位</th>
+                <th>岗位</th>
+                <th>薪资</th>
+                <th>证明材料</th>
+                <th>状态</th>
+                <th>审核意见</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${list}">
+                <td th:text="${e.studentName}"></td>
+                <td th:text="${e.studentNo}"></td>
+                <td th:text="${e.companyName}"></td>
+                <td th:text="${e.position}"></td>
+                <td th:text="${e.salary}"></td>
+                <td th:text="${e.proofFile}"></td>
+                <td th:text="${e.status}"></td>
+                <td th:text="${e.reviewComment}"></td>
+                <td>
+                    <form th:action="@{/admin/employment/{id}/review(id=${e.id})}" method="post" style="display:inline;">
+                        <select name="status">
+                            <option value="已确认">确认</option>
+                            <option value="已退回">退回补正</option>
+                        </select>
+                        <input type="text" name="comment" placeholder="审核意见">
+                        <button type="submit" class="btn">提交</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(list)}">
+                <td colspan="9" style="text-align:center;">暂无上报</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

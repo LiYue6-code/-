@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑单位 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>编辑招聘单位</h1>
+    <div class="card">
+        <form th:action="${company.id == null} ? @{/admin/companies} : @{/admin/companies/{id}/update(id=${company.id})}"
+              method="post" th:object="${company}">
+            <div class="form-group">
+                <label>单位名称</label>
+                <input type="text" th:field="*{name}" required>
+            </div>
+            <div class="form-group">
+                <label>单位性质</label>
+                <input type="text" th:field="*{type}">
+            </div>
+            <div class="form-group">
+                <label>联系人</label>
+                <input type="text" th:field="*{contact}">
+            </div>
+            <div class="form-group">
+                <label>联系电话</label>
+                <input type="text" th:field="*{phone}">
+            </div>
+            <div class="form-group">
+                <label>单位地址</label>
+                <input type="text" th:field="*{address}">
+            </div>
+            <div class="form-group">
+                <label>单位简介</label>
+                <textarea th:field="*{description}"></textarea>
+            </div>
+            <button type="submit" class="btn">保存</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>单位管理 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>招聘单位管理</h1>
+    <div class="card">
+        <a class="btn" th:href="@{/admin/companies/new}">新增单位</a>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>名称</th>
+                <th>性质</th>
+                <th>联系人</th>
+                <th>电话</th>
+                <th>地址</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${companies}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.name}"></td>
+                <td th:text="${c.type}"></td>
+                <td th:text="${c.contact}"></td>
+                <td th:text="${c.phone}"></td>
+                <td th:text="${c.address}"></td>
+                <td>
+                    <a class="btn" th:href="@{/admin/companies/{id}/edit(id=${c.id})}">编辑</a>
+                    <form th:action="@{/admin/companies/{id}/delete(id=${c.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-red" onclick="return confirm('确认删除该单位？')">删除</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(companies)}">
+                <td colspan="7" style="text-align:center;">暂无单位</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
