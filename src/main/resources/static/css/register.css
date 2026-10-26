@@ -1,0 +1,409 @@
+/* ============================================================
+   注册页样式（独立于 style.css，仅供 register.html 使用，不影响其他页面）
+   与登录页 login.css 共用同一套设计语言
+   ============================================================ */
+:root {
+    --primary: #4f46e5;
+    --primary-2: #6366f1;
+    --grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: #0f172a;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 全屏背景 ===== */
+.auth-page {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+    background:
+        radial-gradient(1100px 760px at 8% -12%, #312e81 0%, transparent 55%),
+        radial-gradient(950px 680px at 108% 108%, #6d28d9 0%, transparent 52%),
+        linear-gradient(160deg, #0f172a 0%, #1e1b4b 52%, #312e81 100%);
+}
+
+.auth-page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9), transparent 72%);
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9), transparent 72%);
+    pointer-events: none;
+}
+
+.bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(72px);
+    opacity: 0.55;
+    pointer-events: none;
+    animation: float 9s ease-in-out infinite;
+}
+
+.bg-orb-1 {
+    width: 420px;
+    height: 420px;
+    top: -120px;
+    left: -80px;
+    background: #6366f1;
+}
+
+.bg-orb-2 {
+    width: 360px;
+    height: 360px;
+    bottom: -100px;
+    right: -60px;
+    background: #a855f7;
+    animation-delay: -3s;
+}
+
+.bg-orb-3 {
+    width: 260px;
+    height: 260px;
+    top: 42%;
+    left: 10%;
+    background: #0ea5e9;
+    opacity: 0.32;
+    animation-delay: -5.5s;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(0, 22px);
+    }
+}
+
+/* ===== 卡片 ===== */
+.auth-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 460px;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 36px 32px 28px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+    animation: rise 0.6s var(--ease) both;
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 品牌区 */
+.brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.brand-logo {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 12px;
+    border-radius: 17px;
+    background: var(--grad);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.42);
+}
+
+.brand-logo svg {
+    width: 32px;
+    height: 32px;
+}
+
+.brand h1 {
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+}
+
+.brand p {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+}
+
+/* ===== 提示信息 ===== */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    animation: rise 0.4s var(--ease) both;
+}
+
+.alert svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.alert-error {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid #fecaca;
+}
+
+/* ===== 输入框 ===== */
+.field {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.field-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #94a3b8;
+    display: flex;
+    pointer-events: none;
+    transition: color 0.2s var(--ease);
+    z-index: 1;
+}
+
+.field input {
+    width: 100%;
+    padding: 19px 16px 9px 46px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text);
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.field-password input {
+    padding-right: 48px;
+}
+
+.field label {
+    position: absolute;
+    left: 46px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 15px;
+    pointer-events: none;
+    transition: top 0.2s var(--ease), font-size 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.field input:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.13);
+}
+
+.field input:not(:placeholder-shown) {
+    border-color: #cbd5e1;
+    background: #fff;
+}
+
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label {
+    top: 10px;
+    transform: none;
+    font-size: 11px;
+    color: var(--primary);
+}
+
+.field input:focus ~ .field-icon,
+.field input:not(:placeholder-shown) ~ .field-icon {
+    color: var(--primary);
+}
+
+/* 两列布局（专业 + 联系电话） */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* 密码可见性切换按钮 */
+.toggle-pwd {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: color 0.2s var(--ease), background 0.2s var(--ease);
+    z-index: 1;
+}
+
+.toggle-pwd:hover {
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.toggle-pwd svg {
+    width: 20px;
+    height: 20px;
+}
+
+.toggle-pwd .icon-eye-off {
+    display: none;
+}
+
+.toggle-pwd.show .icon-eye {
+    display: none;
+}
+
+.toggle-pwd.show .icon-eye-off {
+    display: block;
+}
+
+/* ===== 提交按钮 ===== */
+.btn-submit {
+    width: 100%;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: var(--grad);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.36);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), filter 0.2s var(--ease);
+}
+
+.btn-submit svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s var(--ease);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(99, 102, 241, 0.46);
+    filter: brightness(1.04);
+}
+
+.btn-submit:hover svg {
+    transform: translateX(3px);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.34);
+}
+
+.btn-submit:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.5);
+    outline-offset: 2px;
+}
+
+/* ===== 底部链接 ===== */
+.footer-link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.footer-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.footer-link a:hover {
+    text-decoration: underline;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 480px) {
+    .auth-page {
+        padding: 16px;
+    }
+
+    .auth-card {
+        padding: 26px 18px 22px;
+        border-radius: 20px;
+    }
+
+    .brand h1 {
+        font-size: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+/* 无障碍：减少动效 */
+@media (prefers-reduced-motion: reduce) {
+    .auth-card,
+    .alert,
+    .bg-orb {
+        animation: none;
+    }
+}
