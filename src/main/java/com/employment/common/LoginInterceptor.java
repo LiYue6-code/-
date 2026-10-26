@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * 登录拦截器：未登录跳转到登录页，/admin 接口仅管理员可访问。
+ * 登录与角色拦截器：未登录跳转登录页；/admin 仅管理员可访问；学生专属路径仅学生可访问。
  */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
@@ -23,11 +23,25 @@ public class LoginInterceptor implements HandlerInterceptor {
             response.sendRedirect(contextPath + "/login");
             return false;
         }
-        // 管理员接口权限校验
-        if (request.getRequestURI().startsWith(contextPath + "/admin") && !"admin".equals(userType)) {
-            response.sendRedirect(contextPath + "/login");
+
+        String uri = request.getRequestURI();
+
+        // 管理员专属路径
+        if (uri.startsWith(contextPath + "/admin") && !"admin".equals(userType)) {
+            response.sendRedirect(contextPath + "/home");
+            return false;
+        }
+        // 学生专属路径
+        if (isStudentOnly(uri, contextPath) && !"student".equals(userType)) {
+            response.sendRedirect(contextPath + "/home");
             return false;
         }
         return true;
+    }
+
+    private boolean isStudentOnly(String uri, String contextPath) {
+        return uri.startsWith(contextPath + "/my")
+                || uri.startsWith(contextPath + "/profile")
+                || uri.startsWith(contextPath + "/jobs");
     }
 }

@@ -11,6 +11,7 @@
     <h1>发布岗位</h1>
     <div class="card">
         <form th:action="@{/admin/jobs}" method="post" th:object="${job}">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
             <div class="form-group">
                 <label>招聘单位</label>
                 <select th:field="*{companyId}">

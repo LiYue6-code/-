@@ -12,6 +12,7 @@
         <p th:if="${error}" class="error" th:text="${error}"></p>
         <p th:if="${param.registered}" class="success">注册成功，请登录</p>
         <form th:action="@{/login}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
             <div class="form-group">
                 <label>账号</label>
                 <input type="text" name="username" required>

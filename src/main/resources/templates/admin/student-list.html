@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生管理 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <div class="page-header">
+        <h1>学生管理</h1>
+        <a class="btn" th:href="@{/admin/students/new}">+ 新增学生</a>
+    </div>
+
+    <p th:if="${param.reset}" class="success">密码已重置</p>
+
+    <div class="card">
+        <form th:action="@{/admin/students}" method="get" class="toolbar">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="学号 / 姓名 / 专业">
+            <select name="status">
+                <option value="">全部状态</option>
+                <option value="正常" th:selected="${status == '正常'}">正常</option>
+                <option value="禁用" th:selected="${status == '禁用'}">禁用</option>
+            </select>
+            <button type="submit" class="btn">搜索</button>
+            <a class="btn btn-gray" th:href="@{/admin/students}">重置</a>
+        </form>
+
+        <table>
+            <thead>
+            <tr>
+                <th>学号</th>
+                <th>姓名</th>
+                <th>专业</th>
+                <th>联系电话</th>
+                <th>邮箱</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${students}">
+                <td th:text="${s.studentNo}"></td>
+                <td th:text="${s.name}"></td>
+                <td th:text="${s.major}"></td>
+                <td th:text="${s.phone}"></td>
+                <td th:text="${s.email}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${s.status == '正常'} ? 'badge-success' : 'badge-gray'"
+                          th:text="${s.status}"></span>
+                </td>
+                <td class="ops">
+                    <a class="btn btn-sm" th:href="@{/admin/students/{id}/edit(id=${s.id})}">编辑</a>
+                    <a class="btn btn-sm btn-gray" th:href="@{/admin/students/{id}/reset-password(id=${s.id})}">重置密码</a>
+                    <form th:action="@{/admin/students/{id}/toggle-status(id=${s.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <input type="hidden" name="status" th:value="${s.status == '正常'} ? '禁用' : '正常'">
+                        <button type="submit" class="btn btn-sm"
+                                th:classappend="${s.status == '正常'} ? 'btn-red' : 'btn-green'"
+                                th:text="${s.status == '正常'} ? '禁用' : '启用'"></button>
+                    </form>
+                    <form th:action="@{/admin/students/{id}/delete(id=${s.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <button type="submit" class="btn btn-sm btn-red"
+                                onclick="return confirm('确认删除该学生？其申请与就业记录可能变为孤儿数据。')">删除</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(students)}">
+                <td colspan="7" style="text-align:center;color:#999;">暂无学生</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:href="@{/admin/students(keyword=${keyword}, status=${status}, page=${page - 1})}"
+               th:if="${page > 1}">上一页</a>
+            <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <a th:if="${i != page}"
+                   th:href="@{/admin/students(keyword=${keyword}, status=${status}, page=${i})}"
+                   th:text="${i}"></a>
+                <span th:if="${i == page}" class="current" th:text="${i}"></span>
+            </span>
+            <a th:href="@{/admin/students(keyword=${keyword}, status=${status}, page=${page + 1})}"
+               th:if="${page < totalPages}">下一页</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

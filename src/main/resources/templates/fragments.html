@@ -10,15 +10,20 @@
             <a th:href="@{/jobs}">岗位列表</a>
             <a th:href="@{/my/applications}">我的申请</a>
             <a th:href="@{/my/employment}">就业上报</a>
+            <a th:href="@{/profile}">个人中心</a>
         </span>
         <span th:if="${session.userType == 'admin'}">
             <a th:href="@{/admin/statistics}">查询统计</a>
+            <a th:href="@{/admin/students}">学生管理</a>
             <a th:href="@{/admin/companies}">单位管理</a>
             <a th:href="@{/admin/jobs}">岗位管理</a>
             <a th:href="@{/admin/applications}">申请审核</a>
             <a th:href="@{/admin/employment}">就业审核</a>
         </span>
-        <a th:href="@{/logout}">退出</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
+            <a href="#" onclick="event.preventDefault(); this.parentNode.submit();">退出</a>
+        </form>
     </div>
 </nav>
 </body>

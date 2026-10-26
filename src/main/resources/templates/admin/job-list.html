@@ -35,6 +35,7 @@
                 <td th:text="${#temporals.format(j.publishTime, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
                     <form th:if="${j.status == '招聘中'}" th:action="@{/admin/jobs/{id}/offline(id=${j.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
                         <button type="submit" class="btn btn-gray">下架</button>
                     </form>
                 </td>

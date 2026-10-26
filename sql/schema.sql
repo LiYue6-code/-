@@ -15,11 +15,14 @@ DROP TABLE IF EXISTS student;
 CREATE TABLE student (
     id          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
     student_no  VARCHAR(20)  NOT NULL COMMENT '学号（登录账号）',
-    password    VARCHAR(100) NOT NULL COMMENT '密码',
+    password    VARCHAR(100) NOT NULL COMMENT '密码（BCrypt 密文）',
     name        VARCHAR(50)  NOT NULL COMMENT '姓名',
     major       VARCHAR(50)  DEFAULT NULL COMMENT '专业',
     phone       VARCHAR(20)  DEFAULT NULL COMMENT '联系电话',
     email       VARCHAR(100) DEFAULT NULL COMMENT '邮箱',
+    status      VARCHAR(20)  NOT NULL DEFAULT '正常' COMMENT '状态：正常/禁用',
+    failed_count INT         NOT NULL DEFAULT 0 COMMENT '连续登录失败次数',
+    locked_until DATETIME    DEFAULT NULL COMMENT '账号锁定截止时间',
     PRIMARY KEY (id),
     UNIQUE KEY uk_student_no (student_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学生';
@@ -29,8 +32,10 @@ DROP TABLE IF EXISTS admin;
 CREATE TABLE admin (
     id       BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
     username VARCHAR(50)  NOT NULL COMMENT '登录账号',
-    password VARCHAR(100) NOT NULL COMMENT '密码',
+    password VARCHAR(100) NOT NULL COMMENT '密码（BCrypt 密文）',
     name     VARCHAR(50)  NOT NULL COMMENT '姓名',
+    failed_count INT      NOT NULL DEFAULT 0 COMMENT '连续登录失败次数',
+    locked_until DATETIME DEFAULT NULL COMMENT '账号锁定截止时间',
     PRIMARY KEY (id),
     UNIQUE KEY uk_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校负责人';

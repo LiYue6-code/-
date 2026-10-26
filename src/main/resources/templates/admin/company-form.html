@@ -12,6 +12,7 @@
     <div class="card">
         <form th:action="${company.id == null} ? @{/admin/companies} : @{/admin/companies/{id}/update(id=${company.id})}"
               method="post" th:object="${company}">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
             <div class="form-group">
                 <label>单位名称</label>
                 <input type="text" th:field="*{name}" required>

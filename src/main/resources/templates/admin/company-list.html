@@ -34,6 +34,7 @@
                 <td>
                     <a class="btn" th:href="@{/admin/companies/{id}/edit(id=${c.id})}">编辑</a>
                     <form th:action="@{/admin/companies/{id}/delete(id=${c.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
                         <button type="submit" class="btn btn-red" onclick="return confirm('确认删除该单位？')">删除</button>
                     </form>
                 </td>

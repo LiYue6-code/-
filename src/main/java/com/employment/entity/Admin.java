@@ -1,5 +1,7 @@
 package com.employment.entity;
 
+import java.time.LocalDateTime;
+
 /**
  * 学校负责人实体。
  */
@@ -8,6 +10,8 @@ public class Admin {
     private String username;
     private String password;
     private String name;
+    private int failedCount;
+    private LocalDateTime lockedUntil;
 
     public Long getId() {
         return id;
@@ -39,5 +43,21 @@ public class Admin {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(int failedCount) {
+        this.failedCount = failedCount;
+    }
+
+    public LocalDateTime getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(LocalDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
     }
 }

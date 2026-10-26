@@ -1,5 +1,7 @@
 package com.employment.entity;
 
+import java.time.LocalDateTime;
+
 /**
  * 学生实体。
  */
@@ -11,6 +13,9 @@ public class Student {
     private String major;
     private String phone;
     private String email;
+    private int failedCount;
+    private LocalDateTime lockedUntil;
+    private String status;
 
     public Long getId() {
         return id;
@@ -66,5 +71,29 @@ public class Student {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(int failedCount) {
+        this.failedCount = failedCount;
+    }
+
+    public LocalDateTime getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(LocalDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -11,6 +11,7 @@
     <h1>就业信息上报</h1>
     <div class="card">
         <form th:action="@{/my/employment}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
             <div class="form-group">
                 <label>就业单位</label>
                 <input type="text" name="companyName" required>

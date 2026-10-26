@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>个人中心 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <h1>个人中心</h1>
+    <p th:if="${success}" class="success" th:text="${success}"></p>
+
+    <div class="card profile-card">
+        <div class="avatar" th:text="${#strings.substring(student.name, 0, 1)}"></div>
+        <div class="profile-head">
+            <div class="profile-name" th:text="${student.name}"></div>
+            <div class="profile-no" th:text="${'学号：' + student.studentNo}"></div>
+        </div>
+        <a class="btn btn-gray" th:href="@{/profile/password}">修改密码</a>
+    </div>
+
+    <div class="card">
+        <h2>基本资料</h2>
+        <form th:action="@{/profile}" method="post" th:object="${student}">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>学号</label>
+                    <input type="text" th:field="*{studentNo}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" th:field="*{name}" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>专业</label>
+                    <input type="text" th:field="*{major}">
+                </div>
+                <div class="form-group">
+                    <label>联系电话</label>
+                    <input type="text" th:field="*{phone}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" th:field="*{email}">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

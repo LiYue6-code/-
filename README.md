@@ -36,7 +36,8 @@ employment-system/
 ├── pom.xml
 ├── sql/
 │   ├── schema.sql        # 建库建表脚本
-│   └── data.sql          # 初始化数据
+│   ├── data.sql          # 初始化数据
+│   └── migration.sql     # 登录安全加固的增量迁移脚本（已建库时执行）
 └── src/main/
     ├── java/com/employment/
     │   ├── EmploymentApplication.java
@@ -69,6 +70,8 @@ mysql -u root -p < sql/data.sql
 
 或在 MySQL 客户端中依次执行两个脚本。
 
+> 若数据库已按旧版脚本建过，请改为执行 `sql/migration.sql`（为登录失败锁定新增字段）。历史明文密码会在应用首次启动时自动升级为 BCrypt 密文，无需手动处理。
+
 ### 3. 修改数据库连接
 
 编辑 `src/main/resources/application.yml`，将 `username` / `password` 改为本机 MySQL 账号密码（默认均为 `root`）。
@@ -94,4 +97,6 @@ mvn spring-boot:run
 ## 说明
 
 - 上传的证明材料默认保存在运行目录下的 `uploads/` 文件夹。
+- 密码使用 BCrypt 加密存储；连续登录失败 5 次锁定 15 分钟；所有写操作均有 CSRF 防护；退出登录需 POST。
+- 学生信息维护：负责人端「学生管理」支持新增/编辑/删除/重置密码/禁用启用；学生端「个人中心」支持修改本人资料与密码。
 - 该项目为课程实训的初步版本，后续可按功能模块继续扩展（如岗位编辑、简历管理、图表统计、导出报表等）。

@@ -36,6 +36,7 @@
                 <td th:text="${e.reviewComment}"></td>
                 <td>
                     <form th:action="@{/admin/employment/{id}/review(id=${e.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
                         <select name="status">
                             <option value="已确认">确认</option>
                             <option value="已退回">退回补正</option>

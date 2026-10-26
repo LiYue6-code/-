@@ -36,6 +36,7 @@
                 <td th:text="${a.hireStatus}"></td>
                 <td>
                     <form th:action="@{/admin/applications/{id}/review(id=${a.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
                         <select name="status">
                             <option value="通过">通过</option>
                             <option value="未通过">未通过</option>
