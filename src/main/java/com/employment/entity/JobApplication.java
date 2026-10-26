@@ -15,6 +15,15 @@ public class JobApplication {
     private String interviewResult;
     private String hireStatus;
 
+    /** 审核过程字段（审核人、审核时间、不通过原因、面试地点、备注） */
+    private Long reviewerId;
+    private String reviewerName;
+    private LocalDateTime reviewTime;
+    private String rejectReason;
+    private String interviewPlace;
+    private String remark;
+    private LocalDateTime updateTime;
+
     /** 冗余字段：岗位名称、单位名称、学生姓名、学号 */
     private String jobTitle;
     private String companyName;
@@ -83,6 +92,62 @@ public class JobApplication {
 
     public void setHireStatus(String hireStatus) {
         this.hireStatus = hireStatus;
+    }
+
+    public Long getReviewerId() {
+        return reviewerId;
+    }
+
+    public void setReviewerId(Long reviewerId) {
+        this.reviewerId = reviewerId;
+    }
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
+
+    public LocalDateTime getReviewTime() {
+        return reviewTime;
+    }
+
+    public void setReviewTime(LocalDateTime reviewTime) {
+        this.reviewTime = reviewTime;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
+    public String getInterviewPlace() {
+        return interviewPlace;
+    }
+
+    public void setInterviewPlace(String interviewPlace) {
+        this.interviewPlace = interviewPlace;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 
     public String getJobTitle() {

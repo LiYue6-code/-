@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.employment.mapper.StatisticsMapper">
+
+    <sql id="applyTimeRange">
+        <if test="from != null">
+            AND a.apply_time &gt;= #{from}
+        </if>
+        <if test="to != null">
+            AND a.apply_time &lt; DATE_ADD(#{to}, INTERVAL 1 DAY)
+        </if>
+    </sql>
+
+    <select id="countStudent" resultType="long">
+        SELECT COUNT(*) FROM student
+    </select>
+
+    <select id="countCompany" resultType="long">
+        SELECT COUNT(*) FROM company
+    </select>
+
+    <select id="countJob" resultType="long">
+        SELECT COUNT(*) FROM job
+    </select>
+
+    <select id="countApplication" resultType="long">
+        SELECT COUNT(*) FROM job_application a
+        <where>
+            <include refid="applyTimeRange"/>
+        </where>
+    </select>
+
+    <select id="countHired" resultType="long">
+        SELECT COUNT(*) FROM job_application a
+        <where>
+            a.hire_status = '已录用'
+            <include refid="applyTimeRange"/>
+        </where>
+    </select>
+
+    <select id="countEmploymentConfirmed" resultType="long">
+        SELECT COUNT(*) FROM employment_info WHERE status = '已确认'
+    </select>
+
+    <select id="countEmploymentPending" resultType="long">
+        SELECT COUNT(*) FROM employment_info WHERE status = '待审核'
+    </select>
+
+    <select id="applicationsByJob" resultType="com.employment.entity.StatItem">
+        SELECT j.title AS label,
+               c.name AS extra,
+               COUNT(a.id) AS amount
+        FROM job_application a
+                 LEFT JOIN job j ON a.job_id = j.id
+                 LEFT JOIN company c ON j.company_id = c.id
+        <where>
+            <include refid="applyTimeRange"/>
+        </where>
+        GROUP BY j.id, j.title, c.name
+        ORDER BY amount DESC, j.title
+        LIMIT #{limit}
+    </select>
+
+    <select id="applicationsByCompany" resultType="com.employment.entity.StatItem">
+        SELECT c.name AS label,
+               c.type AS extra,
+               COUNT(a.id) AS amount
+        FROM job_application a
+                 LEFT JOIN job j ON a.job_id = j.id
+                 LEFT JOIN company c ON j.company_id = c.id
+        <where>
+            <include refid="applyTimeRange"/>
+        </where>
+        GROUP BY c.id, c.name, c.type
+        ORDER BY amount DESC, c.name
+        LIMIT #{limit}
+    </select>
+
+    <select id="applicationsByMajor" resultType="com.employment.entity.StatItem">
+        SELECT COALESCE(s.major, '未填写') AS label,
+               NULL AS extra,
+               COUNT(a.id) AS amount
+        FROM job_application a
+                 LEFT JOIN student s ON a.student_id = s.id
+        <where>
+            <include refid="applyTimeRange"/>
+        </where>
+        GROUP BY COALESCE(s.major, '未填写')
+        ORDER BY amount DESC
+    </select>
+
+    <select id="applicationsByMonth" resultType="com.employment.entity.StatItem">
+        SELECT DATE_FORMAT(a.apply_time, '%Y-%m') AS label,
+               NULL AS extra,
+               COUNT(a.id) AS amount
+        FROM job_application a
+        <where>
+            <include refid="applyTimeRange"/>
+        </where>
+        GROUP BY DATE_FORMAT(a.apply_time, '%Y-%m')
+        ORDER BY label
+    </select>
+
+    <select id="applicationStatusDistribution" resultType="com.employment.entity.StatItem">
+        SELECT a.status AS label,
+               NULL AS extra,
+               COUNT(a.id) AS amount
+        FROM job_application a
+        <where>
+            <include refid="applyTimeRange"/>
+        </where>
+        GROUP BY a.status
+        ORDER BY amount DESC
+    </select>
+
+    <select id="employmentDestination" resultType="com.employment.entity.StatItem">
+        SELECT e.company_name AS label,
+               NULL AS extra,
+               COUNT(e.id) AS amount
+        FROM employment_info e
+        WHERE e.status = '已确认'
+        GROUP BY e.company_name
+        ORDER BY amount DESC
+        LIMIT 10
+    </select>
+
+</mapper>

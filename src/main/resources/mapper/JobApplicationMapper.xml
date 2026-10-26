@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.employment.mapper.JobApplicationMapper">
+
+    <sql id="detailColumns">
+        a.*,
+        j.title AS job_title,
+        c.name AS company_name,
+        s.name AS student_name,
+        s.student_no AS student_no
+    </sql>
+
+    <sql id="baseFrom">
+        FROM job_application a
+        LEFT JOIN job j ON a.job_id = j.id
+        LEFT JOIN company c ON j.company_id = c.id
+        LEFT JOIN student s ON a.student_id = s.id
+    </sql>
+
+    <sql id="whereClause">
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (s.name LIKE CONCAT('%', #{q.keyword}, '%')
+                OR s.student_no LIKE CONCAT('%', #{q.keyword}, '%')
+                OR j.title LIKE CONCAT('%', #{q.keyword}, '%')
+                OR c.name LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.status != null and q.status != ''">
+                AND a.status = #{q.status}
+            </if>
+            <if test="q.from != null">
+                AND a.apply_time &gt;= #{q.from}
+            </if>
+            <if test="q.to != null">
+                AND a.apply_time &lt; DATE_ADD(#{q.to}, INTERVAL 1 DAY)
+            </if>
+        </where>
+    </sql>
+
+    <select id="search" resultType="com.employment.entity.JobApplication">
+        SELECT <include refid="detailColumns"/>
+        <include refid="baseFrom"/>
+        <include refid="whereClause"/>
+        ORDER BY a.apply_time DESC, a.id DESC
+        LIMIT #{q.size} OFFSET #{q.offset}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        <include refid="baseFrom"/>
+        <include refid="whereClause"/>
+    </select>
+
+    <select id="findDetailById" resultType="com.employment.entity.JobApplication">
+        SELECT <include refid="detailColumns"/>
+        <include refid="baseFrom"/>
+        WHERE a.id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.employment.mapper.EmploymentInfoMapper">
+
+    <sql id="detailColumns">
+        e.*,
+        s.name AS student_name,
+        s.student_no AS student_no
+    </sql>
+
+    <sql id="baseFrom">
+        FROM employment_info e
+        LEFT JOIN student s ON e.student_id = s.id
+    </sql>
+
+    <sql id="whereClause">
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (s.name LIKE CONCAT('%', #{q.keyword}, '%')
+                OR s.student_no LIKE CONCAT('%', #{q.keyword}, '%')
+                OR e.company_name LIKE CONCAT('%', #{q.keyword}, '%')
+                OR e.position LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.status != null and q.status != ''">
+                AND e.status = #{q.status}
+            </if>
+            <if test="q.from != null">
+                AND e.submit_time &gt;= #{q.from}
+            </if>
+            <if test="q.to != null">
+                AND e.submit_time &lt; DATE_ADD(#{q.to}, INTERVAL 1 DAY)
+            </if>
+        </where>
+    </sql>
+
+    <select id="search" resultType="com.employment.entity.EmploymentInfo">
+        SELECT <include refid="detailColumns"/>
+        <include refid="baseFrom"/>
+        <include refid="whereClause"/>
+        ORDER BY e.submit_time DESC, e.id DESC
+        LIMIT #{q.size} OFFSET #{q.offset}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        <include refid="baseFrom"/>
+        <include refid="whereClause"/>
+    </select>
+
+    <select id="findDetailById" resultType="com.employment.entity.EmploymentInfo">
+        SELECT <include refid="detailColumns"/>
+        <include refid="baseFrom"/>
+        WHERE e.id = #{id}
+    </select>
+
+</mapper>
