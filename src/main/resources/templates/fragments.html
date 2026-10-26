@@ -3,16 +3,25 @@
 <body>
 <!-- 顶部导航栏片段 -->
 <nav th:fragment="nav" class="nav">
-    <span class="brand">就业管理系统</span>
-    <div>
+    <a class="brand" th:href="@{/home}">
+        <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+        </span>
+        <span>就业管理系统</span>
+    </a>
+    <div class="nav-right">
         <span class="user" th:text="'当前用户：' + ${session.userName} + '（' + (${session.userType} == 'admin' ? '学校负责人' : '学生') + '）'"></span>
-        <span th:if="${session.userType == 'student'}">
+        <span class="nav-links" th:if="${session.userType == 'student'}">
             <a th:href="@{/jobs}">岗位列表</a>
             <a th:href="@{/my/applications}">我的申请</a>
             <a th:href="@{/my/employment}">就业上报</a>
             <a th:href="@{/profile}">个人中心</a>
         </span>
-        <span th:if="${session.userType == 'admin'}">
+        <span class="nav-links" th:if="${session.userType == 'admin'}">
             <a th:href="@{/admin/statistics}">查询统计</a>
             <a th:href="@{/admin/students}">学生管理</a>
             <a th:href="@{/admin/companies}">单位管理</a>
@@ -20,7 +29,7 @@
             <a th:href="@{/admin/applications}">申请审核</a>
             <a th:href="@{/admin/employment}">就业审核</a>
         </span>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
+        <form class="logout-form" th:action="@{/logout}" method="post">
             <input type="hidden" name="_csrf" th:value="${_csrf}">
             <a href="#" onclick="event.preventDefault(); this.parentNode.submit();">退出</a>
         </form>
