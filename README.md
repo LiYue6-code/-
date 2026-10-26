@@ -2,6 +2,21 @@
 
 软件工程综合实训课程项目（第 22 组）。面向 **学生** 与 **学校负责人** 两类角色的就业管理信息化平台，实现就业岗位发布、申请、自报、审核、录用及统计的全流程管理。
 
+## ⚠️ 拉取本仓库后必做（3 分钟）
+
+1. **先执行数据库增量脚本，再启动，否则启动报错**（代码已用到 `audit_log` 等新表新字段，`schema.sql` 中没有）：
+
+   ```bash
+   mysql -u root -p employment_db < sql/migration_v2.sql
+   ```
+
+   > MySQL 8.0 不支持 `ADD COLUMN IF NOT EXISTS`，该脚本**只能执行一次**。
+
+2. **接受 GitHub 合作邀请**：组长邀请后需在通知/邮件里点 *Accept invitation*，否则 `pull` 正常但 `push` 会报 `403 denied to <你的账号>`。
+   自查：`gh api repos/LiYue6-code/- --jq .permissions`（`push: true` 才能推）。
+
+3. **改 `static/css/style.css` 前先 `git pull`**：该文件是多人共用冲突热点。审核/统计模块的样式**追加在文件末尾**（`/* ===== 审核与统计模块新增样式（张伟旗） ===== */` 起），冲突时**两边都保留**，不要整段覆盖。
+
 ## 功能
 
 1. 学生、招聘单位及岗位信息维护；
