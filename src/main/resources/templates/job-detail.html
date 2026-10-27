@@ -8,19 +8,58 @@
 <body>
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
-    <h1 th:text="${job.title}">岗位详情</h1>
+    <div class="page-header">
+        <h1 th:text="${job.title}">岗位详情</h1>
+        <a class="btn btn-gray btn-sm" th:href="@{/jobs}">返回岗位列表</a>
+    </div>
+
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+
     <div class="card">
-        <p th:if="${error}" class="error" th:text="${error}"></p>
-        <p><strong>招聘单位：</strong><span th:text="${job.companyName}"></span></p>
-        <p><strong>薪资待遇：</strong><span th:text="${job.salary}"></span></p>
-        <p><strong>招聘人数：</strong><span th:text="${job.headcount}"></span></p>
-        <p><strong>任职要求：</strong><span th:text="${job.requirement}"></span></p>
-        <p><strong>岗位描述：</strong><span th:text="${job.description}"></span></p>
-        <p><strong>发布时间：</strong><span th:text="${#temporals.format(job.publishTime, 'yyyy-MM-dd HH:mm')}"></span></p>
-        <form th:action="@{/jobs/{id}/apply(id=${job.id})}" method="post" style="margin-top:12px;">
-            <input type="hidden" name="_csrf" th:value="${_csrf}">
-            <button type="submit" class="btn">申请该岗位</button>
-        </form>
+        <div class="kv">
+            <div><span>招聘单位</span><b th:text="${job.companyName}"></b></div>
+            <div><span>薪资待遇</span><b th:text="${job.salary}"></b></div>
+            <div><span>招聘人数</span><b th:text="${job.headcount}"></b></div>
+            <div><span>岗位状态</span>
+                <b>
+                    <span class="badge"
+                          th:classappend="${job.open ? 'badge-success' : 'badge-gray'}"
+                          th:text="${job.status}"></span>
+                </b>
+            </div>
+            <div><span>发布时间</span>
+                <b th:text="${job.publishTime == null ? '' : #temporals.format(job.publishTime, 'yyyy-MM-dd HH:mm')}"></b>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>任职要求</h2>
+        <p class="job-text" th:text="${job.requirement == null or job.requirement == '' ? '未填写' : job.requirement}"></p>
+    </div>
+
+    <div class="card">
+        <h2>岗位描述</h2>
+        <p class="job-text" th:text="${job.description == null or job.description == '' ? '未填写' : job.description}"></p>
+    </div>
+
+    <div class="card">
+        <div th:if="${applied}">
+            <span class="badge badge-success">你已申请该岗位</span>
+            <a class="btn btn-sm" style="margin-left:10px;"
+               th:href="@{/my/applications}">查看我的申请</a>
+        </div>
+        <div th:if="${!applied and job.open}">
+            <form th:action="@{/jobs/{id}/apply(id=${job.id})}" method="post">
+                <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <button type="submit" class="btn">申请该岗位</button>
+            </form>
+        </div>
+        <div th:if="${!applied and !job.open}" class="muted">
+            该岗位已停止招聘，无法申请。可以先看看
+            <a th:href="@{/jobs}">其他在招岗位</a>。
+        </div>
     </div>
 </div>
 </body>

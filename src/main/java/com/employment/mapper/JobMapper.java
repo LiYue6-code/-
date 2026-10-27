@@ -1,6 +1,7 @@
 package com.employment.mapper;
 
 import com.employment.entity.Job;
+import com.employment.query.JobQuery;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -22,14 +23,14 @@ public interface JobMapper {
             "LEFT JOIN company c ON j.company_id = c.id ORDER BY j.publish_time DESC")
     List<Job> findAll();
 
-    @Select("<script>" +
-            "SELECT j.*, c.name AS company_name FROM job j " +
-            "LEFT JOIN company c ON j.company_id = c.id WHERE j.status = '招聘中' " +
-            "<if test='keyword != null and keyword != \"\"'>" +
-            "AND (j.title LIKE CONCAT('%', #{keyword}, '%') OR c.name LIKE CONCAT('%', #{keyword}, '%'))" +
-            "</if> ORDER BY j.publish_time DESC" +
-            "</script>")
-    List<Job> search(@Param("keyword") String keyword);
+    /**
+     * 学生端条件分页查询（仅招聘中的岗位）。
+     * SQL 见 resources/mapper/JobMapper.xml。
+     */
+    List<Job> search(@Param("q") JobQuery q);
+
+    /** 与 search 相同条件的总条数。 */
+    long count(@Param("q") JobQuery q);
 
     @Insert("INSERT INTO job(company_id, title, description, requirement, headcount, salary, status) " +
             "VALUES(#{companyId}, #{title}, #{description}, #{requirement}, #{headcount}, #{salary}, #{status})")

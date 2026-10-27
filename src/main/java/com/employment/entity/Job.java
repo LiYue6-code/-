@@ -19,6 +19,9 @@ public class Job {
     /** 冗余字段：招聘单位名称 */
     private String companyName;
 
+    /** 展示字段：当前学生是否已申请该岗位（不落库） */
+    private boolean applied;
+
     public Long getId() {
         return id;
     }
@@ -97,5 +100,18 @@ public class Job {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public boolean isApplied() {
+        return applied;
+    }
+
+    public void setApplied(boolean applied) {
+        this.applied = applied;
+    }
+
+    /** 是否仍在招聘，用于判断学生能否申请。 */
+    public boolean isOpen() {
+        return "招聘中".equals(status);
     }
 }
