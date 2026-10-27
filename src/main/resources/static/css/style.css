@@ -719,3 +719,23 @@ tbody tr:last-child td {
     }
 }
 
+
+/* ===== 学生端模块新增样式（杨丰隆） ===== */
+/* 岗位详情中的长文本（任职要求/岗位描述）保留换行 */
+.job-text {
+    white-space: pre-wrap;
+    line-height: 1.8;
+    color: var(--text);
+}
+
+/* 岗位详情顶部信息块在窄屏下自动换行 */
+.kv > div {
+    min-width: 160px;
+}
+
+/* 处理进度页中的状态说明列，避免过长撑破表格 */
+.container table td .muted {
+    display: inline-block;
+    max-width: 320px;
+    vertical-align: middle;
+}

@@ -10,13 +10,17 @@
 <div class="container">
     <div class="page-header">
         <h1 th:text="${title}">处理进度</h1>
-        <a class="btn btn-gray btn-sm" href="javascript:history.back()">返回</a>
+        <div class="ops">
+            <a class="btn btn-gray btn-sm" th:href="@{/my/progress}">返回处理进度</a>
+            <a class="btn btn-gray btn-sm" href="javascript:history.back()">返回上一页</a>
+        </div>
     </div>
 
     <div class="card">
         <div class="kv">
             <div><span>事项</span><b th:text="${subject}"></b></div>
             <div><span>当前状态</span><b th:text="${current}"></b></div>
+            <div><span>处理节点</span><b th:text="|${#lists.size(logs)} 条|"></b></div>
         </div>
     </div>
 
@@ -29,6 +33,8 @@
                 <div class="tl-body">
                     <span class="tl-action" th:text="${log.actionLabel}"></span>
                     <div class="tl-meta" th:text="|处理人：${log.operatorName == null ? '系统' : log.operatorName}|"></div>
+                    <div class="tl-meta" th:if="${log.fromStatus != null and log.toStatus != null}"
+                         th:text="|状态：${log.fromStatus} → ${log.toStatus}|"></div>
                     <div class="tl-comment" th:if="${log.comment != null}" th:text="${log.comment}"></div>
                 </div>
             </li>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>处理进度 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <div class="page-header">
+        <h1>处理进度</h1>
+        <div class="ops">
+            <a class="btn btn-gray btn-sm" th:href="@{/jobs}">岗位列表</a>
+            <a class="btn btn-gray btn-sm" th:href="@{/my/employment}">就业上报</a>
+        </div>
+    </div>
+
+    <!-- 待办提醒：就业上报被退回时必须补正 -->
+    <div class="card" th:if="${returned != null}">
+        <span class="badge badge-danger">待补正</span>
+        <span class="muted" style="margin-left:8px;"
+              th:text="|你的就业上报（${returned.companyName}）已被退回：${returned.reviewComment == null ? '请按要求修改后重新提交' : returned.reviewComment}|"></span>
+        <a class="btn btn-sm" style="margin-left:10px;" th:href="@{/my/employment}">去补正</a>
+    </div>
+
+    <div class="stat-grid" style="margin-bottom:16px;">
+        <div class="stat-box">
+            <div class="num" th:text="${applicationCount}">0</div>
+            <div class="label">岗位申请总数</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${applicationWaiting}">0</div>
+            <div class="label">待初审</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${applicationPassed}">0</div>
+            <div class="label">初审通过</div>
+        </div>
+        <div class="stat-box">
+            <div class="num" th:text="${hiredCount}">0</div>
+            <div class="label">已录用</div>
+        </div>
+    </div>
+
+    <h2>岗位申请进度</h2>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>岗位</th>
+                <th>招聘单位</th>
+                <th>申请时间</th>
+                <th>初审</th>
+                <th>面试</th>
+                <th>录用</th>
+                <th>进度</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${applications}">
+                <td th:text="${a.jobTitle}"></td>
+                <td th:text="${a.companyName}"></td>
+                <td th:text="${a.applyTime == null ? '' : #temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.status == '待审核' ? 'badge-warn' : (a.status == '通过' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${a.status}"></span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.interviewResult == '面试通过' ? 'badge-success' : (a.interviewResult == '面试未通过' ? 'badge-danger' : 'badge-gray')}"
+                          th:text="${a.interviewResult == null ? '未安排' : a.interviewResult}"></span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.hireStatus == '已录用' ? 'badge-success' : 'badge-gray'}"
+                          th:text="${a.hireStatus}"></span>
+                </td>
+                <td class="ops">
+                    <a class="btn btn-gray btn-sm"
+                       th:href="@{/my/applications/{id}/progress(id=${a.id})}">查看时间线</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(applications)}">
+                <td colspan="7" style="text-align:center;">
+                    暂无岗位申请，去 <a th:href="@{/jobs}">岗位列表</a> 申请吧
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>就业上报进度</h2>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>就业单位</th>
+                <th>岗位</th>
+                <th>上报时间</th>
+                <th>状态</th>
+                <th>审核意见</th>
+                <th>进度</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${employments}">
+                <td th:text="${e.companyName}"></td>
+                <td th:text="${e.position}"></td>
+                <td th:text="${e.submitTime == null ? '' : #temporals.format(e.submitTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${e.status == '待审核' ? 'badge-warn' : (e.status == '已确认' ? 'badge-success' : 'badge-danger')}"
+                          th:text="${e.status}"></span>
+                </td>
+                <td th:text="${e.reviewComment == null ? '—' : e.reviewComment}"></td>
+                <td class="ops">
+                    <a class="btn btn-gray btn-sm"
+                       th:href="@{/my/employment/{id}/progress(id=${e.id})}">查看时间线</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(employments)}">
+                <td colspan="6" style="text-align:center;">
+                    暂无就业上报，去 <a th:href="@{/my/employment}">就业上报</a> 提交
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
