@@ -3,13 +3,18 @@ package com.employment.service;
 import com.employment.common.BizException;
 import com.employment.common.PageResult;
 import com.employment.entity.AuditLog;
+import com.employment.entity.Job;
 import com.employment.entity.JobApplication;
 import com.employment.mapper.JobApplicationMapper;
+import com.employment.mapper.JobMapper;
 import com.employment.query.ApplicationQuery;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.employment.service.ApplicationFlow.Action;
 
@@ -23,10 +28,13 @@ import static com.employment.service.ApplicationFlow.Action;
 public class ApplicationService {
 
     private final JobApplicationMapper applicationMapper;
+    private final JobMapper jobMapper;
     private final AuditService auditService;
 
-    public ApplicationService(JobApplicationMapper applicationMapper, AuditService auditService) {
+    public ApplicationService(JobApplicationMapper applicationMapper, JobMapper jobMapper,
+                             AuditService auditService) {
         this.applicationMapper = applicationMapper;
+        this.jobMapper = jobMapper;
         this.auditService = auditService;
     }
 
@@ -35,9 +43,21 @@ public class ApplicationService {
     /**
      * 学生申请岗位。
      *
+     * <p>申请前依次校验：岗位存在、岗位仍在招聘、本人未申请过同一岗位。
+     *
      * @return 返回 null 表示成功，否则返回错误提示信息。
      */
     public String apply(Long jobId, Long studentId) {
+        if (studentId == null) {
+            return "请先登录后再申请岗位";
+        }
+        Job job = jobMapper.findById(jobId);
+        if (job == null) {
+            return "岗位不存在或已被删除";
+        }
+        if (!job.isOpen()) {
+            return "该岗位「" + job.getStatus() + "」，已停止招聘，不能申请";
+        }
         if (applicationMapper.findByJobAndStudent(jobId, studentId) != null) {
             return "您已申请过该岗位，请勿重复申请";
         }
@@ -49,6 +69,25 @@ public class ApplicationService {
                     studentId, "学生本人", null);
         }
         return null;
+    }
+
+    /** 当前学生是否已申请过该岗位。 */
+    public boolean hasApplied(Long jobId, Long studentId) {
+        if (jobId == null || studentId == null) {
+            return false;
+        }
+        return applicationMapper.findByJobAndStudent(jobId, studentId) != null;
+    }
+
+    /** 当前学生已申请的岗位 ID 集合（列表页用于标记「已申请」）。 */
+    public Set<Long> myAppliedJobIds(Long studentId) {
+        if (studentId == null) {
+            return Set.of();
+        }
+        return applicationMapper.findByStudent(studentId).stream()
+                .map(JobApplication::getJobId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     public List<JobApplication> myApplications(Long studentId) {

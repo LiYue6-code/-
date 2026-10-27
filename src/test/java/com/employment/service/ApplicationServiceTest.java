@@ -1,7 +1,9 @@
 package com.employment.service;
 
+import com.employment.entity.Job;
 import com.employment.entity.JobApplication;
 import com.employment.mapper.JobApplicationMapper;
+import com.employment.mapper.JobMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,11 +13,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -37,10 +44,24 @@ class ApplicationServiceTest {
     private JobApplicationMapper applicationMapper;
 
     @Mock
+    private JobMapper jobMapper;
+
+    @Mock
     private AuditService auditService;
 
     @InjectMocks
     private ApplicationService applicationService;
+
+    private static final Long JOB_ID = 3L;
+    private static final Long STUDENT_ID = 5L;
+
+    private Job job(String status) {
+        Job job = new Job();
+        job.setId(JOB_ID);
+        job.setTitle("Java 开发工程师");
+        job.setStatus(status);
+        return job;
+    }
 
     private JobApplication application(String status, String interviewResult, String hireStatus) {
         JobApplication a = new JobApplication();
@@ -130,5 +151,80 @@ class ApplicationServiceTest {
                 any(LocalDateTime.class));
         verify(auditService).record(eq(AuditService.TYPE_APPLICATION), eq(ID), eq("HIRE"),
                 anyString(), anyString(), anyString(), eq(ADMIN_ID), eq(ADMIN_NAME), eq("已签三方"));
+    }
+
+    // ==================== 学生申请岗位 ====================
+
+    @Test
+    @DisplayName("申请岗位：岗位不存在时拒绝，不写库")
+    void applyRejectsMissingJob() {
+        when(jobMapper.findById(JOB_ID)).thenReturn(null);
+
+        assertEquals("岗位不存在或已被删除", applicationService.apply(JOB_ID, STUDENT_ID));
+        verifyNoInteractions(applicationMapper, auditService);
+    }
+
+    @Test
+    @DisplayName("申请岗位：岗位已截止时拒绝，不写库")
+    void applyRejectsClosedJob() {
+        when(jobMapper.findById(JOB_ID)).thenReturn(job("已截止"));
+
+        String error = applicationService.apply(JOB_ID, STUDENT_ID);
+
+        assertNotNull(error);
+        assertTrue(error.contains("已停止招聘"), "提示应说明岗位已停止招聘");
+        verify(applicationMapper, never()).insert(any(), any());
+        verifyNoInteractions(auditService);
+    }
+
+    @Test
+    @DisplayName("申请岗位：重复申请同一岗位时拒绝")
+    void applyRejectsDuplicate() {
+        when(jobMapper.findById(JOB_ID)).thenReturn(job("招聘中"));
+        when(applicationMapper.findByJobAndStudent(JOB_ID, STUDENT_ID)).thenReturn(new JobApplication());
+
+        assertEquals("您已申请过该岗位，请勿重复申请", applicationService.apply(JOB_ID, STUDENT_ID));
+        verify(applicationMapper, never()).insert(any(), any());
+        verifyNoInteractions(auditService);
+    }
+
+    @Test
+    @DisplayName("申请岗位：校验通过后写入申请并记录提交日志")
+    void applySuccessRecordsAudit() {
+        JobApplication created = new JobApplication();
+        created.setId(77L);
+        when(jobMapper.findById(JOB_ID)).thenReturn(job("招聘中"));
+        when(applicationMapper.findByJobAndStudent(JOB_ID, STUDENT_ID)).thenReturn(null, created);
+
+        String error = applicationService.apply(JOB_ID, STUDENT_ID);
+
+        assertNull(error);
+        verify(applicationMapper).insert(JOB_ID, STUDENT_ID);
+        verify(auditService).record(eq(AuditService.TYPE_APPLICATION), eq(77L), eq("SUBMIT"),
+                anyString(), ArgumentMatchers.<String>isNull(), anyString(),
+                eq(STUDENT_ID), anyString(), ArgumentMatchers.<String>isNull());
+    }
+
+    @Test
+    @DisplayName("是否已申请：未登录（studentId 为空）时直接返回 false")
+    void hasAppliedWithoutStudent() {
+        assertFalse(applicationService.hasApplied(JOB_ID, null));
+        verifyNoInteractions(jobMapper, applicationMapper);
+    }
+
+    @Test
+    @DisplayName("已申请岗位 ID 集合：按学生去重")
+    void myAppliedJobIdsDistinct() {
+        JobApplication first = new JobApplication();
+        first.setJobId(1L);
+        JobApplication second = new JobApplication();
+        second.setJobId(2L);
+        JobApplication duplicate = new JobApplication();
+        duplicate.setJobId(1L);
+        when(applicationMapper.findByStudent(anyLong())).thenReturn(List.of(first, second, duplicate));
+
+        Set<Long> ids = applicationService.myAppliedJobIds(STUDENT_ID);
+
+        assertEquals(Set.of(1L, 2L), ids);
     }
 }

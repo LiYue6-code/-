@@ -8,7 +8,17 @@
 <body>
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
-    <h1>我的申请</h1>
+    <div class="page-header">
+        <h1>我的申请</h1>
+        <div class="ops">
+            <a class="btn btn-gray btn-sm" th:href="@{/my/progress}">处理进度</a>
+            <a class="btn btn-gray btn-sm" th:href="@{/jobs}">继续找工作</a>
+        </div>
+    </div>
+
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+
     <div class="card">
         <table>
             <thead>
@@ -20,6 +30,7 @@
                 <th>面试时间</th>
                 <th>面试结果</th>
                 <th>录用状态</th>
+                <th>说明</th>
                 <th>进度</th>
             </tr>
             </thead>
@@ -34,18 +45,31 @@
                           th:text="${a.status}"></span>
                 </td>
                 <td th:text="${a.interviewTime == null ? '待安排' : #temporals.format(a.interviewTime, 'yyyy-MM-dd HH:mm')}"></td>
-                <td th:text="${a.interviewResult}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.interviewResult == '面试通过' ? 'badge-success' : (a.interviewResult == '面试未通过' ? 'badge-danger' : 'badge-gray')}"
+                          th:text="${a.interviewResult == null ? '未安排' : a.interviewResult}"></span>
+                </td>
                 <td>
                     <span class="badge"
                           th:classappend="${a.hireStatus == '已录用' ? 'badge-success' : 'badge-gray'}"
                           th:text="${a.hireStatus}"></span>
+                </td>
+                <td>
+                    <span th:if="${a.rejectReason != null}" class="muted"
+                          th:text="|未通过原因：${a.rejectReason}|"></span>
+                    <span th:if="${a.rejectReason == null and a.interviewPlace != null}" class="muted"
+                          th:text="|面试地点：${a.interviewPlace}|"></span>
+                    <span th:if="${a.rejectReason == null and a.interviewPlace == null}" class="muted">—</span>
                 </td>
                 <td class="ops">
                     <a class="btn btn-gray btn-sm" th:href="@{/my/applications/{id}/progress(id=${a.id})}">查看进度</a>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(applications)}">
-                <td colspan="8" style="text-align:center;">暂无申请记录</td>
+                <td colspan="9" style="text-align:center;">
+                    暂无申请记录，去 <a th:href="@{/jobs}">岗位列表</a> 看看在招岗位吧
+                </td>
             </tr>
             </tbody>
         </table>
