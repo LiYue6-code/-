@@ -55,7 +55,8 @@ public class EmploymentController {
                 .filter(e -> "已退回".equals(e.getStatus()))
                 .findFirst().orElse(null);
         model.addAttribute("list", list);
-        model.addAttribute("canReport", !hasActive);
+        // 已退回时只显示补正表单；已有活动记录时只提示，避免同时出现两张可提交的表单
+        model.addAttribute("canReport", !hasActive && returned == null);
         model.addAttribute("returned", returned);
         model.addAttribute("info", new EmploymentInfo());
         return "my-employment";

@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -134,5 +135,49 @@ class EmploymentServiceTest {
 
         assertNotNull(employmentService.report(form));
         verifyNoInteractions(employmentInfoMapper);
+    }
+
+    @Test
+    @DisplayName("学生上报：就业单位超过 100 字时拒绝，且不写库")
+    void reportRejectsTooLongCompany() {
+        EmploymentInfo form = new EmploymentInfo();
+        form.setStudentId(STUDENT_ID);
+        form.setCompanyName("单".repeat(101));
+
+        assertEquals("就业单位名称不能超过 100 个字符", employmentService.report(form));
+        verifyNoInteractions(employmentInfoMapper, auditService);
+    }
+
+    @Test
+    @DisplayName("学生上报：保存前去除首尾空格，空串转为 null")
+    void reportTrimsFields() {
+        when(employmentInfoMapper.findActiveByStudent(STUDENT_ID)).thenReturn(null);
+
+        EmploymentInfo form = new EmploymentInfo();
+        form.setStudentId(STUDENT_ID);
+        form.setCompanyName("  某信息技术有限公司  ");
+        form.setPosition("  ");
+        form.setSalary(" 8000-12000 ");
+
+        assertNull(employmentService.report(form));
+
+        assertEquals("某信息技术有限公司", form.getCompanyName());
+        assertNull(form.getPosition());
+        assertEquals("8000-12000", form.getSalary());
+        verify(employmentInfoMapper).insert(form);
+    }
+
+    @Test
+    @DisplayName("补正重报：岗位名称超过 100 字时拒绝，且不写库")
+    void resubmitRejectsTooLongPosition() {
+        when(employmentInfoMapper.findDetailById(ID)).thenReturn(info("已退回"));
+
+        EmploymentInfo form = new EmploymentInfo();
+        form.setCompanyName("某公司");
+        form.setPosition("岗".repeat(101));
+
+        assertEquals("岗位名称不能超过 100 个字符",
+                employmentService.resubmit(ID, form, STUDENT_ID, null, null));
+        verify(employmentInfoMapper, never()).resubmitKeepFile(any(), any(), any(), any(), any());
     }
 }

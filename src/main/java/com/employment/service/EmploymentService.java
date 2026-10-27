@@ -33,9 +33,11 @@ public class EmploymentService {
      * @return null 表示成功，否则返回错误提示
      */
     public String report(EmploymentInfo info) {
-        if (info.getCompanyName() == null || info.getCompanyName().isBlank()) {
-            return "就业单位不能为空";
+        String invalid = validateForm(info);
+        if (invalid != null) {
+            return invalid;
         }
+        normalize(info);
         EmploymentInfo active = employmentInfoMapper.findActiveByStudent(info.getStudentId());
         if (active != null) {
             return "你已有一条「" + active.getStatus() + "」的上报记录，无需重复上报";
@@ -71,9 +73,11 @@ public class EmploymentService {
         if (error != null) {
             return error;
         }
-        if (form.getCompanyName() == null || form.getCompanyName().isBlank()) {
-            return "就业单位不能为空";
+        String invalid = validateForm(form);
+        if (invalid != null) {
+            return invalid;
         }
+        normalize(form);
         LocalDateTime now = LocalDateTime.now();
         if (proofFile != null) {
             employmentInfoMapper.resubmit(id, form.getCompanyName().trim(), form.getPosition(),
@@ -148,5 +152,39 @@ public class EmploymentService {
                 info.getStatus(), to, operatorId, operatorName,
                 comment == null ? null : comment.trim());
         return null;
+    }
+
+    // ==================== 内部方法 ====================
+
+    /**
+     * 校验上报表单（与表结构长度一致，避免超长直接抛 SQL 异常）。
+     *
+     * @return null 表示校验通过
+     */
+    private static String validateForm(EmploymentInfo form) {
+        if (form == null || form.getCompanyName() == null || form.getCompanyName().isBlank()) {
+            return "就业单位不能为空";
+        }
+        if (form.getCompanyName().trim().length() > 100) {
+            return "就业单位名称不能超过 100 个字符";
+        }
+        if (form.getPosition() != null && form.getPosition().trim().length() > 100) {
+            return "岗位名称不能超过 100 个字符";
+        }
+        if (form.getSalary() != null && form.getSalary().trim().length() > 50) {
+            return "薪资待遇不能超过 50 个字符";
+        }
+        return null;
+    }
+
+    /** 去掉首尾空格，空串统一转为 null。 */
+    private static void normalize(EmploymentInfo form) {
+        form.setCompanyName(form.getCompanyName().trim());
+        form.setPosition(blankToNull(form.getPosition()));
+        form.setSalary(blankToNull(form.getSalary()));
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }
