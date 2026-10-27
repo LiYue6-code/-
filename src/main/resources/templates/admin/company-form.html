@@ -2,42 +2,48 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>编辑单位 - 就业管理系统</title>
+    <title th:text="${company.id == null} ? '新增单位 - 就业管理系统' : '编辑单位 - 就业管理系统'">单位 - 就业管理系统</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
-    <h1>编辑招聘单位</h1>
+    <div class="page-header">
+        <h1 th:text="${company.id == null} ? '新增招聘单位' : '编辑招聘单位'">招聘单位</h1>
+        <a class="btn btn-gray btn-sm" th:href="@{/admin/companies}">返回列表</a>
+    </div>
+
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+
     <div class="card">
         <form th:action="${company.id == null} ? @{/admin/companies} : @{/admin/companies/{id}/update(id=${company.id})}"
               method="post" th:object="${company}">
             <input type="hidden" name="_csrf" th:value="${_csrf}">
             <div class="form-group">
                 <label>单位名称</label>
-                <input type="text" th:field="*{name}" required>
+                <input type="text" th:field="*{name}" maxlength="100" required>
             </div>
             <div class="form-group">
                 <label>单位性质</label>
-                <input type="text" th:field="*{type}">
+                <input type="text" th:field="*{type}" maxlength="50">
             </div>
             <div class="form-group">
                 <label>联系人</label>
-                <input type="text" th:field="*{contact}">
+                <input type="text" th:field="*{contact}" maxlength="50">
             </div>
             <div class="form-group">
                 <label>联系电话</label>
-                <input type="text" th:field="*{phone}">
+                <input type="text" th:field="*{phone}" maxlength="20">
             </div>
             <div class="form-group">
                 <label>单位地址</label>
-                <input type="text" th:field="*{address}">
+                <input type="text" th:field="*{address}" maxlength="200">
             </div>
             <div class="form-group">
                 <label>单位简介</label>
-                <textarea th:field="*{description}"></textarea>
+                <textarea th:field="*{description}" maxlength="500" rows="4"></textarea>
             </div>
-            <button type="submit" class="btn">保存</button>
+            <button type="submit" class="btn" th:text="${company.id == null} ? '新增' : '保存'">保存</button>
         </form>
     </div>
 </div>

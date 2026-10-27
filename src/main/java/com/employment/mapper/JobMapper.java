@@ -37,7 +37,12 @@ public interface JobMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Job job);
 
-    @Update("UPDATE job SET title=#{title}, description=#{description}, requirement=#{requirement}, " +
-            "headcount=#{headcount}, salary=#{salary}, status=#{status} WHERE id=#{id}")
+    @Update("UPDATE job SET company_id=#{companyId}, title=#{title}, description=#{description}, " +
+            "requirement=#{requirement}, headcount=#{headcount}, salary=#{salary}, " +
+            "status=#{status} WHERE id=#{id}")
     int update(Job job);
+
+    /** 某招聘单位下的岗位数量（删除单位前的保护性检查）。 */
+    @Select("SELECT COUNT(*) FROM job WHERE company_id = #{companyId}")
+    int countByCompany(@Param("companyId") Long companyId);
 }

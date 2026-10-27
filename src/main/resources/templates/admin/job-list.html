@@ -9,6 +9,10 @@
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
     <h1>岗位管理</h1>
+
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+
     <div class="card">
         <a class="btn" th:href="@{/admin/jobs/new}">发布岗位</a>
         <table>
@@ -28,15 +32,26 @@
             <tr th:each="j : ${jobs}">
                 <td th:text="${j.id}"></td>
                 <td th:text="${j.title}"></td>
-                <td th:text="${j.companyName}"></td>
-                <td th:text="${j.salary}"></td>
-                <td th:text="${j.headcount}"></td>
-                <td th:text="${j.status}"></td>
-                <td th:text="${#temporals.format(j.publishTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${j.companyName == null ? '（单位已删除）' : j.companyName}"></td>
+                <td th:text="${j.salary == null ? '—' : j.salary}"></td>
+                <td th:text="${j.headcount == null ? '—' : j.headcount}"></td>
                 <td>
-                    <form th:if="${j.status == '招聘中'}" th:action="@{/admin/jobs/{id}/offline(id=${j.id})}" method="post" style="display:inline;">
+                    <span class="badge"
+                          th:classappend="${j.open} ? 'badge-success' : 'badge-gray'"
+                          th:text="${j.status}"></span>
+                </td>
+                <td th:text="${j.publishTime == null ? '—' : #temporals.format(j.publishTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <a class="btn btn-sm" th:href="@{/admin/jobs/{id}/edit(id=${j.id})}">编辑</a>
+                    <form th:if="${j.status == '招聘中'}" th:action="@{/admin/jobs/{id}/offline(id=${j.id})}"
+                          method="post" style="display:inline;">
                         <input type="hidden" name="_csrf" th:value="${_csrf}">
-                        <button type="submit" class="btn btn-gray">下架</button>
+                        <button type="submit" class="btn btn-sm btn-gray">下架</button>
+                    </form>
+                    <form th:if="${j.status == '已截止'}" th:action="@{/admin/jobs/{id}/online(id=${j.id})}"
+                          method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <button type="submit" class="btn btn-sm btn-green">上架</button>
                     </form>
                 </td>
             </tr>

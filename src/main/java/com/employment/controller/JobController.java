@@ -83,23 +83,96 @@ public class JobController {
         return "admin/job-list";
     }
 
+    /** 发布岗位表单：默认「招聘中」、招聘人数 1。 */
     @GetMapping("/admin/jobs/new")
     public String newForm(Model model) {
-        model.addAttribute("job", new Job());
+        Job job = new Job();
+        job.setStatus("招聘中");
+        job.setHeadcount(1);
+        model.addAttribute("job", job);
+        model.addAttribute("companies", companyService.list());
+        return "admin/job-form";
+    }
+
+    /** 编辑岗位表单。 */
+    @GetMapping("/admin/jobs/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Job job = jobService.get(id);
+        if (job == null) {
+            redirectAttributes.addFlashAttribute("err", "岗位不存在或已被删除");
+            return "redirect:/admin/jobs";
+        }
+        model.addAttribute("job", job);
         model.addAttribute("companies", companyService.list());
         return "admin/job-form";
     }
 
     @PostMapping("/admin/jobs")
-    public String create(Job job) {
-        jobService.create(job);
+    public String create(Job job, Model model, RedirectAttributes redirectAttributes) {
+        if (!companyExists(job.getCompanyId())) {
+            return jobFormWithError(job, "请选择有效的招聘单位", model);
+        }
+        String error = jobService.create(job);
+        if (error != null) {
+            return jobFormWithError(job, error, model);
+        }
+        redirectAttributes.addFlashAttribute("msg", "岗位已发布");
         return "redirect:/admin/jobs";
     }
 
-    @PostMapping("/admin/jobs/{id}/offline")
-    public String offline(@PathVariable Long id) {
-        jobService.offline(id);
+    @PostMapping("/admin/jobs/{id}/update")
+    public String update(@PathVariable Long id, Job job, Model model, RedirectAttributes redirectAttributes) {
+        job.setId(id);
+        if (!companyExists(job.getCompanyId())) {
+            return jobFormWithError(job, "请选择有效的招聘单位", model);
+        }
+        String error = jobService.update(job);
+        if (error != null) {
+            return jobFormWithError(job, error, model);
+        }
+        redirectAttributes.addFlashAttribute("msg", "岗位已更新");
         return "redirect:/admin/jobs";
+    }
+
+    /** 下架：先确认岗位存在且确实在招，避免“静默成功”。 */
+    @PostMapping("/admin/jobs/{id}/offline")
+    public String offline(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Job job = jobService.get(id);
+        if (job == null) {
+            redirectAttributes.addFlashAttribute("err", "岗位不存在或已被删除");
+        } else if (!"招聘中".equals(job.getStatus())) {
+            redirectAttributes.addFlashAttribute("err", "该岗位当前状态为「" + job.getStatus() + "」，无需下架");
+        } else {
+            jobService.offline(id);
+            redirectAttributes.addFlashAttribute("msg", "岗位已下架");
+        }
+        return "redirect:/admin/jobs";
+    }
+
+    /** 上架：仅允许从「已截止」恢复为「招聘中」。 */
+    @PostMapping("/admin/jobs/{id}/online")
+    public String online(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Job job = jobService.get(id);
+        if (job == null) {
+            redirectAttributes.addFlashAttribute("err", "岗位不存在或已被删除");
+        } else if (!"已截止".equals(job.getStatus())) {
+            redirectAttributes.addFlashAttribute("err", "该岗位当前状态为「" + job.getStatus() + "」，无需上架");
+        } else {
+            jobService.online(id);
+            redirectAttributes.addFlashAttribute("msg", "岗位已上架，学生端可重新申请");
+        }
+        return "redirect:/admin/jobs";
+    }
+
+    private boolean companyExists(Long companyId) {
+        return companyId != null && companyService.get(companyId) != null;
+    }
+
+    private String jobFormWithError(Job job, String error, Model model) {
+        model.addAttribute("job", job);
+        model.addAttribute("error", error);
+        model.addAttribute("companies", companyService.list());
+        return "admin/job-form";
     }
 
     private static String blankToNull(String value) {

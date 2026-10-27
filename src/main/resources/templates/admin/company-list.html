@@ -9,6 +9,10 @@
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
     <h1>招聘单位管理</h1>
+
+    <div th:if="${err}" class="error" th:text="${err}"></div>
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+
     <div class="card">
         <a class="btn" th:href="@{/admin/companies/new}">新增单位</a>
         <table>
@@ -27,15 +31,16 @@
             <tr th:each="c : ${companies}">
                 <td th:text="${c.id}"></td>
                 <td th:text="${c.name}"></td>
-                <td th:text="${c.type}"></td>
-                <td th:text="${c.contact}"></td>
-                <td th:text="${c.phone}"></td>
-                <td th:text="${c.address}"></td>
+                <td th:text="${c.type == null ? '—' : c.type}"></td>
+                <td th:text="${c.contact == null ? '—' : c.contact}"></td>
+                <td th:text="${c.phone == null ? '—' : c.phone}"></td>
+                <td th:text="${c.address == null ? '—' : c.address}"></td>
                 <td>
-                    <a class="btn" th:href="@{/admin/companies/{id}/edit(id=${c.id})}">编辑</a>
+                    <a class="btn btn-sm" th:href="@{/admin/companies/{id}/edit(id=${c.id})}">编辑</a>
                     <form th:action="@{/admin/companies/{id}/delete(id=${c.id})}" method="post" style="display:inline;">
                         <input type="hidden" name="_csrf" th:value="${_csrf}">
-                        <button type="submit" class="btn btn-red" onclick="return confirm('确认删除该单位？')">删除</button>
+                        <button type="submit" class="btn btn-sm btn-red"
+                                onclick="return confirm('确认删除该单位？如果该单位下还有岗位，系统会拒绝删除。')">删除</button>
                     </form>
                 </td>
             </tr>
