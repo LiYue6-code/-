@@ -40,4 +40,36 @@
         <include refid="studentWhere"/>
     </select>
 
+    <!-- ==================== 负责人端（王海宁） ==================== -->
+
+    <!-- 负责人端不过滤状态，状态由条件决定；关键字同时匹配岗位名称与单位名称 -->
+    <sql id="adminWhere">
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (j.title LIKE CONCAT('%', #{q.keyword}, '%')
+                OR c.name LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.companyId != null">
+                AND j.company_id = #{q.companyId}
+            </if>
+            <if test="q.status != null and q.status != ''">
+                AND j.status = #{q.status}
+            </if>
+        </where>
+    </sql>
+
+    <select id="adminSearch" resultType="com.employment.entity.Job">
+        SELECT <include refid="columns"/>
+        <include refid="baseFrom"/>
+        <include refid="adminWhere"/>
+        ORDER BY j.publish_time DESC, j.id DESC
+        LIMIT #{q.size} OFFSET #{q.offset}
+    </select>
+
+    <select id="adminCount" resultType="long">
+        SELECT COUNT(*)
+        <include refid="baseFrom"/>
+        <include refid="adminWhere"/>
+    </select>
+
 </mapper>

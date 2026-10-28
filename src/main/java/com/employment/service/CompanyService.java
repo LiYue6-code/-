@@ -1,8 +1,10 @@
 package com.employment.service;
 
+import com.employment.common.PageResult;
 import com.employment.entity.Company;
 import com.employment.mapper.CompanyMapper;
 import com.employment.mapper.JobMapper;
+import com.employment.query.AdminCompanyQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +28,18 @@ public class CompanyService {
     /** 全量单位列表（学生端筛选下拉与岗位发布表单共用，保持无参语义）。 */
     public List<Company> list() {
         return companyMapper.findAll();
+    }
+
+    /** 负责人端分页检索（关键字匹配单位名称/联系人/电话，并带岗位数）。 */
+    public PageResult<Company> search(AdminCompanyQuery query) {
+        int page = Math.max(query.getPage(), 1);
+        query.setPage(page);
+        if (query.getSize() <= 0) {
+            query.setSize(10);
+        }
+        long total = companyMapper.count(query);
+        List<Company> items = total == 0 ? List.of() : companyMapper.search(query);
+        return new PageResult<>(items, page, query.getSize(), total);
     }
 
     public Company get(Long id) {

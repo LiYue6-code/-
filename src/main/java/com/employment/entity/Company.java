@@ -12,6 +12,9 @@ public class Company {
     private String address;
     private String description;
 
+    /** 展示字段：该单位下的岗位数（列表页查询填充，不落库） */
+    private Integer jobCount;
+
     public Long getId() {
         return id;
     }
@@ -66,5 +69,13 @@ public class Company {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getJobCount() {
+        return jobCount;
+    }
+
+    public void setJobCount(Integer jobCount) {
+        this.jobCount = jobCount;
     }
 }

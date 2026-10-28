@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.employment.mapper.CompanyMapper">
+
+    <!-- 负责人端关键字：单位名称 / 联系人 / 联系电话 -->
+    <sql id="adminWhere">
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (c.name LIKE CONCAT('%', #{q.keyword}, '%')
+                OR c.contact LIKE CONCAT('%', #{q.keyword}, '%')
+                OR c.phone LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+        </where>
+    </sql>
+
+    <!-- 列表带岗位数，便于判断该单位能否删除；job_count 由 map-underscore-to-camel-case 映射到 jobCount -->
+    <select id="search" resultType="com.employment.entity.Company">
+        SELECT c.*,
+               (SELECT COUNT(*) FROM job j WHERE j.company_id = c.id) AS job_count
+        FROM company c
+        <include refid="adminWhere"/>
+        ORDER BY c.id DESC
+        LIMIT #{q.size} OFFSET #{q.offset}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM company c
+        <include refid="adminWhere"/>
+    </select>
+
+</mapper>

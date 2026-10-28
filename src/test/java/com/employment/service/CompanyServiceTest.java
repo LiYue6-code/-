@@ -1,8 +1,10 @@
 package com.employment.service;
 
+import com.employment.common.PageResult;
 import com.employment.entity.Company;
 import com.employment.mapper.CompanyMapper;
 import com.employment.mapper.JobMapper;
+import com.employment.query.AdminCompanyQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,5 +120,32 @@ class CompanyServiceTest {
 
         assertEquals("单位不存在或已被删除", companyService.update(company));
         verify(companyMapper, never()).update(any());
+    }
+
+    @Test
+    @DisplayName("单位分页：按总数计算总页数并返回当页数据")
+    void searchSplitsPages() {
+        AdminCompanyQuery query = new AdminCompanyQuery();
+        when(companyMapper.count(query)).thenReturn(12L);
+        when(companyMapper.search(query)).thenReturn(java.util.List.of(company()));
+
+        PageResult<Company> page = companyService.search(query);
+
+        assertEquals(1, page.getItems().size());
+        assertEquals(12, page.getTotal());
+        assertEquals(2, page.getTotalPages());
+    }
+
+    @Test
+    @DisplayName("单位分页：无匹配记录时返回空页，不再查询列表")
+    void searchReturnsEmptyPage() {
+        AdminCompanyQuery query = new AdminCompanyQuery();
+        when(companyMapper.count(query)).thenReturn(0L);
+
+        PageResult<Company> page = companyService.search(query);
+
+        assertEquals(0, page.getItems().size());
+        assertEquals(0, page.getTotal());
+        verify(companyMapper, never()).search(any());
     }
 }

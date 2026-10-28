@@ -1,6 +1,7 @@
 package com.employment.controller;
 
 import com.employment.entity.Company;
+import com.employment.query.AdminCompanyQuery;
 import com.employment.service.CompanyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -23,9 +25,18 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
+    /** 单位列表：按关键字（名称/联系人/电话）搜索并分页，列表带岗位数。 */
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("companies", companyService.list());
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(defaultValue = "1") int page,
+                       Model model) {
+        AdminCompanyQuery query = new AdminCompanyQuery();
+        query.setKeyword(keyword == null || keyword.isBlank() ? null : keyword.trim());
+        query.setPage(Math.max(page, 1));
+        query.setSize(10);
+
+        model.addAttribute("pageData", companyService.search(query));
+        model.addAttribute("keyword", keyword);
         return "admin/company-list";
     }
 

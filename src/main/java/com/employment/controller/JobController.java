@@ -1,6 +1,7 @@
 package com.employment.controller;
 
 import com.employment.entity.Job;
+import com.employment.query.AdminJobQuery;
 import com.employment.query.JobQuery;
 import com.employment.service.ApplicationService;
 import com.employment.service.CompanyService;
@@ -76,10 +77,25 @@ public class JobController {
         return "redirect:/my/applications";
     }
 
-    /** 负责人端岗位列表。 */
+    /** 负责人端岗位列表：按关键字（岗位/单位）、招聘单位、状态筛选并分页。 */
     @GetMapping("/admin/jobs")
-    public String adminList(Model model) {
-        model.addAttribute("jobs", jobService.listAll());
+    public String adminList(@RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) Long companyId,
+                            @RequestParam(required = false) String status,
+                            @RequestParam(defaultValue = "1") int page,
+                            Model model) {
+        AdminJobQuery query = new AdminJobQuery();
+        query.setKeyword(blankToNull(keyword));
+        query.setCompanyId(companyId);
+        query.setStatus(blankToNull(status));
+        query.setPage(Math.max(page, 1));
+        query.setSize(10);
+
+        model.addAttribute("pageData", jobService.adminSearch(query));
+        model.addAttribute("companies", companyService.list());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("companyId", companyId);
+        model.addAttribute("status", status);
         return "admin/job-list";
     }
 

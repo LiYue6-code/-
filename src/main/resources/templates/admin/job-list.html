@@ -13,8 +13,25 @@
     <div th:if="${err}" class="error" th:text="${err}"></div>
     <div th:if="${msg}" class="success" th:text="${msg}"></div>
 
-    <div class="card">
+    <form class="card toolbar" method="get" th:action="@{/admin/jobs}">
+        <input type="text" name="keyword" placeholder="岗位名称 / 招聘单位" th:value="${keyword}" style="min-width:220px;">
+        <select name="companyId">
+            <option value="">全部招聘单位</option>
+            <option th:each="c : ${companies}" th:value="${c.id}"
+                    th:selected="${companyId != null and companyId == c.id}"
+                    th:text="${c.name}"></option>
+        </select>
+        <select name="status">
+            <option value="">全部状态</option>
+            <option value="招聘中" th:selected="${status == '招聘中'}">招聘中</option>
+            <option value="已截止" th:selected="${status == '已截止'}">已截止</option>
+        </select>
+        <button type="submit" class="btn">查询</button>
+        <a class="btn btn-gray" th:href="@{/admin/jobs}">重置</a>
         <a class="btn" th:href="@{/admin/jobs/new}">发布岗位</a>
+    </form>
+
+    <div class="card">
         <table>
             <thead>
             <tr>
@@ -29,7 +46,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="j : ${jobs}">
+            <tr th:each="j : ${pageData.items}">
                 <td th:text="${j.id}"></td>
                 <td th:text="${j.title}"></td>
                 <td th:text="${j.companyName == null ? '（单位已删除）' : j.companyName}"></td>
@@ -55,11 +72,24 @@
                     </form>
                 </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(jobs)}">
-                <td colspan="8" style="text-align:center;">暂无岗位</td>
+            <tr th:if="${#lists.isEmpty(pageData.items)}">
+                <td colspan="8" style="text-align:center;">没有符合条件的岗位</td>
             </tr>
             </tbody>
         </table>
+
+        <div class="pagination" th:if="${pageData.totalPages > 1}">
+            <a th:if="${pageData.hasPrev}"
+               th:href="@{/admin/jobs(page=${pageData.page - 1},keyword=${keyword},companyId=${companyId},status=${status})}">上一页</a>
+            <a th:each="p : ${pageData.pageNumbers}"
+               th:classappend="${p == pageData.page ? 'current' : ''}"
+               th:href="@{/admin/jobs(page=${p},keyword=${keyword},companyId=${companyId},status=${status})}"
+               th:text="${p}"></a>
+            <a th:if="${pageData.hasNext}"
+               th:href="@{/admin/jobs(page=${pageData.page + 1},keyword=${keyword},companyId=${companyId},status=${status})}">下一页</a>
+        </div>
+        <div class="muted" style="margin-top:8px;"
+             th:text="|共 ${pageData.total} 个岗位，第 ${pageData.page} / ${pageData.totalPages} 页|"></div>
     </div>
 </div>
 </body>

@@ -1,7 +1,9 @@
 package com.employment.service;
 
+import com.employment.common.PageResult;
 import com.employment.entity.Job;
 import com.employment.mapper.JobMapper;
+import com.employment.query.AdminJobQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -143,5 +145,46 @@ class JobAdminServiceTest {
 
         assertEquals("招聘中", job.getStatus());
         verify(jobMapper).update(job);
+    }
+
+    @Test
+    @DisplayName("负责人端分页：按总数计算总页数并返回当页数据")
+    void adminSearchSplitsPages() {
+        AdminJobQuery query = new AdminJobQuery();
+        Job job = job();
+        job.setId(1L);
+        when(jobMapper.adminCount(query)).thenReturn(25L);
+        when(jobMapper.adminSearch(query)).thenReturn(java.util.List.of(job));
+
+        PageResult<Job> page = jobService.adminSearch(query);
+
+        assertEquals(1, page.getItems().size());
+        assertEquals(25, page.getTotal());
+        assertEquals(3, page.getTotalPages());
+    }
+
+    @Test
+    @DisplayName("负责人端分页：无匹配记录时返回空页，不再查询列表")
+    void adminSearchReturnsEmptyPage() {
+        AdminJobQuery query = new AdminJobQuery();
+        when(jobMapper.adminCount(query)).thenReturn(0L);
+
+        PageResult<Job> page = jobService.adminSearch(query);
+
+        assertEquals(0, page.getItems().size());
+        assertEquals(0, page.getTotal());
+        verify(jobMapper, never()).adminSearch(any());
+    }
+
+    @Test
+    @DisplayName("负责人端分页：页码小于 1 时归一到第 1 页")
+    void adminSearchNormalizesPage() {
+        AdminJobQuery query = new AdminJobQuery();
+        query.setPage(0);
+        when(jobMapper.adminCount(query)).thenReturn(0L);
+
+        PageResult<Job> page = jobService.adminSearch(query);
+
+        assertEquals(1, page.getPage());
     }
 }

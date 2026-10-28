@@ -1,9 +1,11 @@
 package com.employment.mapper;
 
 import com.employment.entity.Company;
+import com.employment.query.AdminCompanyQuery;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -31,4 +33,13 @@ public interface CompanyMapper {
 
     @Delete("DELETE FROM company WHERE id = #{id}")
     int deleteById(Long id);
+
+    /**
+     * 负责人端条件分页查询（带岗位数）。
+     * SQL 见 resources/mapper/CompanyMapper.xml。
+     */
+    List<Company> search(@Param("q") AdminCompanyQuery q);
+
+    /** 与 search 相同条件的总条数。 */
+    long count(@Param("q") AdminCompanyQuery q);
 }

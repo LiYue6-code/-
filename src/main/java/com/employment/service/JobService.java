@@ -4,6 +4,7 @@ import com.employment.common.BizException;
 import com.employment.common.PageResult;
 import com.employment.entity.Job;
 import com.employment.mapper.JobMapper;
+import com.employment.query.AdminJobQuery;
 import com.employment.query.JobQuery;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,18 @@ public class JobService {
 
     public List<Job> listAll() {
         return jobMapper.findAll();
+    }
+
+    /** 负责人端岗位分页检索（含已截止岗位，按关键字/单位/状态筛选）。 */
+    public PageResult<Job> adminSearch(AdminJobQuery query) {
+        int page = Math.max(query.getPage(), 1);
+        query.setPage(page);
+        if (query.getSize() <= 0) {
+            query.setSize(10);
+        }
+        long total = jobMapper.adminCount(query);
+        List<Job> items = total == 0 ? List.of() : jobMapper.adminSearch(query);
+        return new PageResult<>(items, page, query.getSize(), total);
     }
 
     public Job get(Long id) {

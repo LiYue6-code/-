@@ -1,6 +1,7 @@
 package com.employment.mapper;
 
 import com.employment.entity.Job;
+import com.employment.query.AdminJobQuery;
 import com.employment.query.JobQuery;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
@@ -45,4 +46,13 @@ public interface JobMapper {
     /** 某招聘单位下的岗位数量（删除单位前的保护性检查）。 */
     @Select("SELECT COUNT(*) FROM job WHERE company_id = #{companyId}")
     int countByCompany(@Param("companyId") Long companyId);
+
+    /**
+     * 负责人端条件分页查询（含已截止岗位）。
+     * SQL 见 resources/mapper/JobMapper.xml，与学生端 {@link #search} 分开，互不影响。
+     */
+    List<Job> adminSearch(@Param("q") AdminJobQuery q);
+
+    /** 与 adminSearch 相同条件的总条数。 */
+    long adminCount(@Param("q") AdminJobQuery q);
 }
