@@ -51,6 +51,10 @@
 ```
 employment-system/
 ├── pom.xml
+├── docs/
+│   ├── diagram.md        # 功能模块划分与层次结构图（画图参考）
+│   ├── 交付说明_学生端模块.md
+│   └── 交付说明_审核与统计模块.md
 ├── sql/
 │   ├── schema.sql        # 建库建表脚本
 │   ├── data.sql          # 初始化数据
