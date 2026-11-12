@@ -19,10 +19,13 @@ public class EmploymentService {
 
     private final EmploymentInfoMapper employmentInfoMapper;
     private final AuditService auditService;
+    private final MessageService messageService;
 
-    public EmploymentService(EmploymentInfoMapper employmentInfoMapper, AuditService auditService) {
+    public EmploymentService(EmploymentInfoMapper employmentInfoMapper, AuditService auditService,
+                             MessageService messageService) {
         this.employmentInfoMapper = employmentInfoMapper;
         this.auditService = auditService;
+        this.messageService = messageService;
     }
 
     // ==================== 学生端 ====================
@@ -45,6 +48,7 @@ public class EmploymentService {
         employmentInfoMapper.insert(info);
         auditService.record(AuditService.TYPE_EMPLOYMENT, info.getId(), "SUBMIT", "学生提交就业上报",
                 null, EmploymentFlow.WAIT, info.getStudentId(), "学生本人", null);
+        messageService.sendToAdmins("有新的就业上报待审核", "学生提交了新的就业信息上报，请及时审核。");
         return null;
     }
 
@@ -151,6 +155,12 @@ public class EmploymentService {
                 confirmed ? "确认通过" : "退回补正",
                 info.getStatus(), to, operatorId, operatorName,
                 comment == null ? null : comment.trim());
+        if (confirmed) {
+            messageService.sendToStudent(info.getStudentId(), "就业信息审核结果", "您的就业信息上报已审核通过。");
+        } else {
+            messageService.sendToStudent(info.getStudentId(), "就业信息审核结果",
+                    "您的就业信息上报被退回，请补正后重新上报。审核意见：" + comment.trim());
+        }
         return null;
     }
 

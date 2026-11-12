@@ -739,3 +739,31 @@ tbody tr:last-child td {
     max-width: 320px;
     vertical-align: middle;
 }
+
+/* ===== 第一优先级功能新增样式（简历/意向、资质审核、站内信） ===== */
+/* 导航栏未读消息角标 */
+.nav-badge {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 站内信未读行加粗 */
+.msg-unread {
+    font-weight: 600;
+}
+
+/* 岗位推荐区块标题与卡片间距 */
+.recommend-card {
+    border-left: 3px solid var(--primary);
+}

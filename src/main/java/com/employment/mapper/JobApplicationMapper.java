@@ -19,13 +19,16 @@ public interface JobApplicationMapper {
     @Select("SELECT * FROM job_application WHERE job_id = #{jobId} AND student_id = #{studentId}")
     JobApplication findByJobAndStudent(@Param("jobId") Long jobId, @Param("studentId") Long studentId);
 
-    @Insert("INSERT INTO job_application(job_id, student_id, status) " +
-            "VALUES(#{jobId}, #{studentId}, '待审核')")
-    int insert(@Param("jobId") Long jobId, @Param("studentId") Long studentId);
+    @Insert("INSERT INTO job_application(job_id, student_id, resume_id, status) " +
+            "VALUES(#{jobId}, #{studentId}, #{resumeId}, '待审核')")
+    int insert(@Param("jobId") Long jobId, @Param("studentId") Long studentId,
+               @Param("resumeId") Long resumeId);
 
-    @Select("SELECT a.*, j.title AS job_title, c.name AS company_name FROM job_application a " +
+    @Select("SELECT a.*, j.title AS job_title, c.name AS company_name, r.title AS resume_title " +
+            "FROM job_application a " +
             "LEFT JOIN job j ON a.job_id = j.id " +
             "LEFT JOIN company c ON j.company_id = c.id " +
+            "LEFT JOIN resume r ON a.resume_id = r.id " +
             "WHERE a.student_id = #{studentId} ORDER BY a.apply_time DESC")
     List<JobApplication> findByStudent(@Param("studentId") Long studentId);
 

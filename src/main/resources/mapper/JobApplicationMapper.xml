@@ -7,7 +7,8 @@
         j.title AS job_title,
         c.name AS company_name,
         s.name AS student_name,
-        s.student_no AS student_no
+        s.student_no AS student_no,
+        r.title AS resume_title
     </sql>
 
     <sql id="baseFrom">
@@ -15,6 +16,7 @@
         LEFT JOIN job j ON a.job_id = j.id
         LEFT JOIN company c ON j.company_id = c.id
         LEFT JOIN student s ON a.student_id = s.id
+        LEFT JOIN resume r ON a.resume_id = r.id
     </sql>
 
     <sql id="whereClause">

@@ -17,6 +17,7 @@
         <span class="user" th:text="'当前用户：' + ${session.userName} + '（' + (${session.userType} == 'admin' ? '学校负责人' : '学生') + '）'"></span>
         <span class="nav-links" th:if="${session.userType == 'student'}">
             <a th:href="@{/jobs}">岗位列表</a>
+            <a th:href="@{/my/resume}">我的简历</a>
             <a th:href="@{/my/applications}">我的申请</a>
             <a th:href="@{/my/employment}">就业上报</a>
             <a th:href="@{/my/progress}">处理进度</a>
@@ -29,6 +30,10 @@
             <a th:href="@{/admin/jobs}">岗位管理</a>
             <a th:href="@{/admin/applications}">申请审核</a>
             <a th:href="@{/admin/employment}">就业审核</a>
+        </span>
+        <span class="nav-links">
+            <a th:href="@{/messages}">站内信<span th:if="${unreadMessages != null and unreadMessages > 0}"
+                                                   class="nav-badge" th:text="${unreadMessages}"></span></a>
         </span>
         <form class="logout-form" th:action="@{/logout}" method="post">
             <input type="hidden" name="_csrf" th:value="${_csrf}">

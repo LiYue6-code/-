@@ -30,24 +30,26 @@ public class ApplicationService {
     private final JobApplicationMapper applicationMapper;
     private final JobMapper jobMapper;
     private final AuditService auditService;
+    private final MessageService messageService;
 
     public ApplicationService(JobApplicationMapper applicationMapper, JobMapper jobMapper,
-                             AuditService auditService) {
+                             AuditService auditService, MessageService messageService) {
         this.applicationMapper = applicationMapper;
         this.jobMapper = jobMapper;
         this.auditService = auditService;
+        this.messageService = messageService;
     }
 
     // ==================== 学生端 ====================
 
     /**
-     * 学生申请岗位。
+     * 学生申请岗位（可关联简历）。
      *
      * <p>申请前依次校验：岗位存在、岗位仍在招聘、本人未申请过同一岗位。
      *
      * @return 返回 null 表示成功，否则返回错误提示信息。
      */
-    public String apply(Long jobId, Long studentId) {
+    public String apply(Long jobId, Long studentId, Long resumeId) {
         if (studentId == null) {
             return "请先登录后再申请岗位";
         }
@@ -61,13 +63,14 @@ public class ApplicationService {
         if (applicationMapper.findByJobAndStudent(jobId, studentId) != null) {
             return "您已申请过该岗位，请勿重复申请";
         }
-        applicationMapper.insert(jobId, studentId);
+        applicationMapper.insert(jobId, studentId, resumeId);
         JobApplication created = applicationMapper.findByJobAndStudent(jobId, studentId);
         if (created != null) {
             auditService.record(AuditService.TYPE_APPLICATION, created.getId(),
                     "SUBMIT", "学生提交申请", null, "待审核 / 未安排 / 待定",
                     studentId, "学生本人", null);
         }
+        messageService.sendToAdmins("有新的岗位申请待审核", "岗位「" + job.getTitle() + "」收到新的学生申请，请及时审核。");
         return null;
     }
 
@@ -152,6 +155,8 @@ public class ApplicationService {
                 from, ApplicationFlow.describe(ApplicationFlow.PASSED,
                         a.getInterviewResult(), a.getHireStatus()),
                 operatorId, operatorName, blankToNull(comment));
+        messageService.sendToStudent(a.getStudentId(), "申请审核结果",
+                "您申请的岗位「" + jobTitleOf(a.getJobId()) + "」已通过初审，请关注后续面试安排。");
         return null;
     }
 
@@ -172,6 +177,8 @@ public class ApplicationService {
                 from, ApplicationFlow.describe(ApplicationFlow.REJECTED,
                         a.getInterviewResult(), a.getHireStatus()),
                 operatorId, operatorName, reason.trim());
+        messageService.sendToStudent(a.getStudentId(), "申请审核结果",
+                "您申请的岗位「" + jobTitleOf(a.getJobId()) + "」初审未通过，原因：" + reason.trim() + "。");
         return null;
     }
 
@@ -196,6 +203,8 @@ public class ApplicationService {
                         ApplicationFlow.IV_WAIT, a.getHireStatus()),
                 operatorId, operatorName,
                 buildInterviewComment(interviewTime, place));
+        messageService.sendToStudent(a.getStudentId(), "面试安排通知",
+                "您申请的岗位「" + jobTitleOf(a.getJobId()) + "」已安排面试，请准时参加。");
         return null;
     }
 
@@ -218,6 +227,8 @@ public class ApplicationService {
                 action.getLabel(), from,
                 ApplicationFlow.describe(a.getStatus(), result, a.getHireStatus()),
                 operatorId, operatorName, blankToNull(comment));
+        messageService.sendToStudent(a.getStudentId(), "面试结果通知",
+                "您申请的岗位「" + jobTitleOf(a.getJobId()) + "」面试" + (passed ? "通过" : "未通过") + "。");
         return null;
     }
 
@@ -239,6 +250,9 @@ public class ApplicationService {
                 action.getLabel(), from,
                 ApplicationFlow.describe(a.getStatus(), a.getInterviewResult(), hireStatus),
                 operatorId, operatorName, blankToNull(comment));
+        messageService.sendToStudent(a.getStudentId(), "录用结果通知",
+                hired ? "恭喜！您申请的岗位「" + jobTitleOf(a.getJobId()) + "」已被录用。"
+                        : "很遗憾，您申请的岗位「" + jobTitleOf(a.getJobId()) + "」未被录用。");
         return null;
     }
 
@@ -250,6 +264,11 @@ public class ApplicationService {
             throw new BizException("申请记录不存在或已被删除");
         }
         return application;
+    }
+
+    private String jobTitleOf(Long jobId) {
+        Job job = jobMapper.findById(jobId);
+        return job == null ? "岗位" : job.getTitle();
     }
 
     private void publish(Long id, String status, String rejectReason, Long operatorId, String operatorName) {

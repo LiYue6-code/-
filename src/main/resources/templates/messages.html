@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>站内信 - 就业管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<div class="container">
+    <div class="page-header">
+        <h1>站内信</h1>
+        <form th:action="@{/messages/read-all}" method="post" th:if="${!#lists.isEmpty(messages)}">
+            <input type="hidden" name="_csrf" th:value="${_csrf}">
+            <button type="submit" class="btn btn-gray btn-sm">全部标记已读</button>
+        </form>
+    </div>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>标题</th>
+                <th>内容</th>
+                <th>时间</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${messages}" th:classappend="${!m.readFlag ? 'msg-unread' : ''}">
+                <td th:text="${m.title}"></td>
+                <td th:text="${m.content}"></td>
+                <td th:text="${#temporals.format(m.createTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${m.readFlag ? '已读' : '未读'}"></td>
+                <td>
+                    <form th:if="${!m.readFlag}" th:action="@{/messages/{id}/read(id=${m.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <button type="submit" class="btn btn-sm">标记已读</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(messages)}">
+                <td colspan="5" style="text-align:center;">暂无消息</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

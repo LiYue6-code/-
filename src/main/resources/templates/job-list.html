@@ -19,6 +19,28 @@
     <div th:if="${msg}" class="success" th:text="${msg}"></div>
     <div th:if="${err}" class="error" th:text="${err}"></div>
 
+    <div class="card recommend-card" th:if="${!#lists.isEmpty(recommendations)}">
+        <h2>为你推荐（根据求职意向）</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>岗位名称</th>
+                <th>招聘单位</th>
+                <th>薪资待遇</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="job : ${recommendations}">
+                <td><a th:href="@{/jobs/{id}(id=${job.id})}" th:text="${job.title}"></a></td>
+                <td th:text="${job.companyName}"></td>
+                <td th:text="${job.salary}"></td>
+                <td><a class="btn btn-sm" th:href="@{/jobs/{id}(id=${job.id})}">查看详情</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
     <form class="card toolbar" method="get" th:action="@{/jobs}">
         <input type="text" name="keyword" placeholder="岗位名称 / 招聘单位" th:value="${keyword}" style="min-width:240px;">
         <select name="companyId">

@@ -49,6 +49,9 @@ class ApplicationServiceTest {
     @Mock
     private AuditService auditService;
 
+    @Mock
+    private MessageService messageService;
+
     @InjectMocks
     private ApplicationService applicationService;
 
@@ -160,7 +163,7 @@ class ApplicationServiceTest {
     void applyRejectsMissingJob() {
         when(jobMapper.findById(JOB_ID)).thenReturn(null);
 
-        assertEquals("岗位不存在或已被删除", applicationService.apply(JOB_ID, STUDENT_ID));
+        assertEquals("岗位不存在或已被删除", applicationService.apply(JOB_ID, STUDENT_ID, null));
         verifyNoInteractions(applicationMapper, auditService);
     }
 
@@ -169,11 +172,11 @@ class ApplicationServiceTest {
     void applyRejectsClosedJob() {
         when(jobMapper.findById(JOB_ID)).thenReturn(job("已截止"));
 
-        String error = applicationService.apply(JOB_ID, STUDENT_ID);
+        String error = applicationService.apply(JOB_ID, STUDENT_ID, null);
 
         assertNotNull(error);
         assertTrue(error.contains("已停止招聘"), "提示应说明岗位已停止招聘");
-        verify(applicationMapper, never()).insert(any(), any());
+        verify(applicationMapper, never()).insert(any(), any(), any());
         verifyNoInteractions(auditService);
     }
 
@@ -183,8 +186,8 @@ class ApplicationServiceTest {
         when(jobMapper.findById(JOB_ID)).thenReturn(job("招聘中"));
         when(applicationMapper.findByJobAndStudent(JOB_ID, STUDENT_ID)).thenReturn(new JobApplication());
 
-        assertEquals("您已申请过该岗位，请勿重复申请", applicationService.apply(JOB_ID, STUDENT_ID));
-        verify(applicationMapper, never()).insert(any(), any());
+        assertEquals("您已申请过该岗位，请勿重复申请", applicationService.apply(JOB_ID, STUDENT_ID, null));
+        verify(applicationMapper, never()).insert(any(), any(), any());
         verifyNoInteractions(auditService);
     }
 
@@ -196,10 +199,10 @@ class ApplicationServiceTest {
         when(jobMapper.findById(JOB_ID)).thenReturn(job("招聘中"));
         when(applicationMapper.findByJobAndStudent(JOB_ID, STUDENT_ID)).thenReturn(null, created);
 
-        String error = applicationService.apply(JOB_ID, STUDENT_ID);
+        String error = applicationService.apply(JOB_ID, STUDENT_ID, null);
 
         assertNull(error);
-        verify(applicationMapper).insert(JOB_ID, STUDENT_ID);
+        verify(applicationMapper).insert(JOB_ID, STUDENT_ID, null);
         verify(auditService).record(eq(AuditService.TYPE_APPLICATION), eq(77L), eq("SUBMIT"),
                 anyString(), ArgumentMatchers.<String>isNull(), anyString(),
                 eq(STUDENT_ID), anyString(), ArgumentMatchers.<String>isNull());

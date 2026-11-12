@@ -9,6 +9,7 @@ public class JobApplication {
     private Long id;
     private Long jobId;
     private Long studentId;
+    private Long resumeId;
     private LocalDateTime applyTime;
     private String status;
     private LocalDateTime interviewTime;
@@ -29,6 +30,9 @@ public class JobApplication {
     private String companyName;
     private String studentName;
     private String studentNo;
+
+    /** 冗余字段：投递所用简历标题 */
+    private String resumeTitle;
 
     public Long getId() {
         return id;
@@ -52,6 +56,14 @@ public class JobApplication {
 
     public void setStudentId(Long studentId) {
         this.studentId = studentId;
+    }
+
+    public Long getResumeId() {
+        return resumeId;
+    }
+
+    public void setResumeId(Long resumeId) {
+        this.resumeId = resumeId;
     }
 
     public LocalDateTime getApplyTime() {
@@ -180,5 +192,13 @@ public class JobApplication {
 
     public void setStudentNo(String studentNo) {
         this.studentNo = studentNo;
+    }
+
+    public String getResumeTitle() {
+        return resumeTitle;
+    }
+
+    public void setResumeTitle(String resumeTitle) {
+        this.resumeTitle = resumeTitle;
     }
 }

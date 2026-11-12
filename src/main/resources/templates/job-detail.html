@@ -31,6 +31,9 @@
             <div><span>发布时间</span>
                 <b th:text="${job.publishTime == null ? '' : #temporals.format(job.publishTime, 'yyyy-MM-dd HH:mm')}"></b>
             </div>
+            <div><span>有效期至</span>
+                <b th:text="${job.validUntil == null ? '长期有效' : #temporals.format(job.validUntil, 'yyyy-MM-dd HH:mm')}"></b>
+            </div>
         </div>
     </div>
 
@@ -53,7 +56,18 @@
         <div th:if="${!applied and job.open}">
             <form th:action="@{/jobs/{id}/apply(id=${job.id})}" method="post">
                 <input type="hidden" name="_csrf" th:value="${_csrf}">
+                <div class="form-group" th:if="${!#lists.isEmpty(resumes)}">
+                    <label>投递简历</label>
+                    <select name="resumeId">
+                        <option th:each="r : ${resumes}" th:value="${r.id}"
+                                th:text="${r.title + (r.defaultFlag ? '（默认）' : '')}"></option>
+                    </select>
+                </div>
+                <p class="muted" th:if="${#lists.isEmpty(resumes)}">
+                    你还没有简历，可先前往「我的简历」创建一份简历。
+                </p>
                 <button type="submit" class="btn">申请该岗位</button>
+                <a class="btn btn-gray" th:href="@{/my/resume}">我的简历</a>
             </form>
         </div>
         <div th:if="${!applied and !job.open}" class="muted">

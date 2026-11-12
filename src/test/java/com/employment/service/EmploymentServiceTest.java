@@ -38,6 +38,9 @@ class EmploymentServiceTest {
     @Mock
     private AuditService auditService;
 
+    @Mock
+    private MessageService messageService;
+
     @InjectMocks
     private EmploymentService employmentService;
 

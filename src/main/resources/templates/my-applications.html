@@ -25,6 +25,7 @@
             <tr>
                 <th>岗位</th>
                 <th>招聘单位</th>
+                <th>投递简历</th>
                 <th>申请时间</th>
                 <th>审核状态</th>
                 <th>面试时间</th>
@@ -38,6 +39,7 @@
             <tr th:each="a : ${applications}">
                 <td th:text="${a.jobTitle}"></td>
                 <td th:text="${a.companyName}"></td>
+                <td th:text="${a.resumeTitle != null ? a.resumeTitle : '未关联'}"></td>
                 <td th:text="${a.applyTime == null ? '' : #temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
                     <span class="badge"
@@ -67,7 +69,7 @@
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(applications)}">
-                <td colspan="9" style="text-align:center;">
+                <td colspan="10" style="text-align:center;">
                     暂无申请记录，去 <a th:href="@{/jobs}">岗位列表</a> 看看在招岗位吧
                 </td>
             </tr>
