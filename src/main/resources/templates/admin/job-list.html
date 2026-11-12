@@ -9,6 +9,8 @@
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
     <h1>岗位管理</h1>
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
     <div class="card">
         <a class="btn" th:href="@{/admin/jobs/new}">发布岗位</a>
         <table>
@@ -18,8 +20,9 @@
                 <th>岗位</th>
                 <th>招聘单位</th>
                 <th>薪资</th>
-                <th>人数</th>
-                <th>状态</th>
+                <th>审核状态</th>
+                <th>上架状态</th>
+                <th>有效期</th>
                 <th>发布时间</th>
                 <th>操作</th>
             </tr>
@@ -30,18 +33,43 @@
                 <td th:text="${j.title}"></td>
                 <td th:text="${j.companyName}"></td>
                 <td th:text="${j.salary}"></td>
-                <td th:text="${j.headcount}"></td>
-                <td th:text="${j.status}"></td>
-                <td th:text="${#temporals.format(j.publishTime, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
+                    <span class="badge"
+                          th:classappend="${j.reviewStatus == '通过' ? 'badge-success' : (j.reviewStatus == '驳回' ? 'badge-danger' : 'badge-warn')}"
+                          th:text="${j.reviewStatus}"></span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${j.status == '招聘中' ? 'badge-success' : 'badge-gray'}"
+                          th:text="${j.status}"></span>
+                </td>
+                <td th:text="${j.validUntil == null ? '长期' : #temporals.format(j.validUntil, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${#temporals.format(j.publishTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="ops">
+                    <form th:if="${j.reviewStatus == '待审核'}" th:action="@{/admin/jobs/{id}/review(id=${j.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <input type="hidden" name="passed" value="true">
+                        <input type="text" name="comment" placeholder="审核意见" style="width:90px;">
+                        <button type="submit" class="btn btn-green btn-sm">通过</button>
+                    </form>
+                    <form th:if="${j.reviewStatus == '待审核'}" th:action="@{/admin/jobs/{id}/review(id=${j.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <input type="hidden" name="passed" value="false">
+                        <input type="text" name="comment" placeholder="驳回原因" style="width:90px;">
+                        <button type="submit" class="btn btn-red btn-sm">驳回</button>
+                    </form>
+                    <form th:if="${j.reviewStatus == '通过' and j.status == '已截止'}" th:action="@{/admin/jobs/{id}/online(id=${j.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <button type="submit" class="btn btn-green btn-sm">上架</button>
+                    </form>
                     <form th:if="${j.status == '招聘中'}" th:action="@{/admin/jobs/{id}/offline(id=${j.id})}" method="post" style="display:inline;">
                         <input type="hidden" name="_csrf" th:value="${_csrf}">
-                        <button type="submit" class="btn btn-gray">下架</button>
+                        <button type="submit" class="btn btn-gray btn-sm">下架</button>
                     </form>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(jobs)}">
-                <td colspan="8" style="text-align:center;">暂无岗位</td>
+                <td colspan="9" style="text-align:center;">暂无岗位</td>
             </tr>
             </tbody>
         </table>

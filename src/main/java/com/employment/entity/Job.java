@@ -14,6 +14,9 @@ public class Job {
     private Integer headcount;
     private String salary;
     private String status;
+    private String reviewStatus;
+    private String reviewComment;
+    private LocalDateTime validUntil;
     private LocalDateTime publishTime;
 
     /** 冗余字段：招聘单位名称 */
@@ -84,6 +87,30 @@ public class Job {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
+    public String getReviewComment() {
+        return reviewComment;
+    }
+
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
+    }
+
+    public LocalDateTime getValidUntil() {
+        return validUntil;
+    }
+
+    public void setValidUntil(LocalDateTime validUntil) {
+        this.validUntil = validUntil;
     }
 
     public LocalDateTime getPublishTime() {

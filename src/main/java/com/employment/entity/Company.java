@@ -11,6 +11,11 @@ public class Company {
     private String phone;
     private String address;
     private String description;
+    private String qualificationFile;
+    private String qualificationName;
+    private String reviewStatus;
+    private String reviewComment;
+    private String creditStatus;
 
     public Long getId() {
         return id;
@@ -66,5 +71,50 @@ public class Company {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getQualificationFile() {
+        return qualificationFile;
+    }
+
+    public void setQualificationFile(String qualificationFile) {
+        this.qualificationFile = qualificationFile;
+    }
+
+    public String getQualificationName() {
+        return qualificationName;
+    }
+
+    public void setQualificationName(String qualificationName) {
+        this.qualificationName = qualificationName;
+    }
+
+    public String getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
+    public String getReviewComment() {
+        return reviewComment;
+    }
+
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
+    }
+
+    public String getCreditStatus() {
+        return creditStatus;
+    }
+
+    public void setCreditStatus(String creditStatus) {
+        this.creditStatus = creditStatus;
+    }
+
+    /** 是否通过资质审核，通过后方可作为岗位发布单位。 */
+    public boolean isApproved() {
+        return "通过".equals(reviewStatus);
     }
 }

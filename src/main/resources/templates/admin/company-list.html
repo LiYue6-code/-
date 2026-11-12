@@ -9,6 +9,8 @@
 <div th:replace="~{fragments :: nav}"></div>
 <div class="container">
     <h1>招聘单位管理</h1>
+    <div th:if="${msg}" class="success" th:text="${msg}"></div>
+    <div th:if="${err}" class="error" th:text="${err}"></div>
     <div class="card">
         <a class="btn" th:href="@{/admin/companies/new}">新增单位</a>
         <table>
@@ -19,7 +21,9 @@
                 <th>性质</th>
                 <th>联系人</th>
                 <th>电话</th>
-                <th>地址</th>
+                <th>资质材料</th>
+                <th>审核状态</th>
+                <th>信用状态</th>
                 <th>操作</th>
             </tr>
             </thead>
@@ -30,17 +34,46 @@
                 <td th:text="${c.type}"></td>
                 <td th:text="${c.contact}"></td>
                 <td th:text="${c.phone}"></td>
-                <td th:text="${c.address}"></td>
+                <td th:text="${c.qualificationName != null ? c.qualificationName : '未上传'}"></td>
                 <td>
-                    <a class="btn" th:href="@{/admin/companies/{id}/edit(id=${c.id})}">编辑</a>
+                    <span class="badge"
+                          th:classappend="${c.reviewStatus == '通过' ? 'badge-success' : (c.reviewStatus == '驳回' ? 'badge-danger' : 'badge-warn')}"
+                          th:text="${c.reviewStatus}"></span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${c.creditStatus == '正常' ? 'badge-success' : 'badge-danger'}"
+                          th:text="${c.creditStatus}"></span>
+                </td>
+                <td class="ops">
+                    <a class="btn btn-sm" th:href="@{/admin/companies/{id}/edit(id=${c.id})}">编辑</a>
+                    <form th:if="${c.reviewStatus == '待审核'}" th:action="@{/admin/companies/{id}/review(id=${c.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <input type="hidden" name="passed" value="true">
+                        <button type="submit" class="btn btn-green btn-sm">通过</button>
+                    </form>
+                    <form th:if="${c.reviewStatus == '待审核'}" th:action="@{/admin/companies/{id}/review(id=${c.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <input type="hidden" name="passed" value="false">
+                        <input type="text" name="comment" placeholder="驳回原因" style="width:80px;">
+                        <button type="submit" class="btn btn-red btn-sm">驳回</button>
+                    </form>
+                    <form th:action="@{/admin/companies/{id}/credit(id=${c.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf}">
+                        <select name="creditStatus">
+                            <option value="正常">正常</option>
+                            <option value="异常">异常</option>
+                        </select>
+                        <button type="submit" class="btn btn-gray btn-sm">标记</button>
+                    </form>
                     <form th:action="@{/admin/companies/{id}/delete(id=${c.id})}" method="post" style="display:inline;">
                         <input type="hidden" name="_csrf" th:value="${_csrf}">
-                        <button type="submit" class="btn btn-red" onclick="return confirm('确认删除该单位？')">删除</button>
+                        <button type="submit" class="btn btn-red btn-sm" onclick="return confirm('确认删除该单位？')">删除</button>
                     </form>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(companies)}">
-                <td colspan="7" style="text-align:center;">暂无单位</td>
+                <td colspan="9" style="text-align:center;">暂无单位</td>
             </tr>
             </tbody>
         </table>

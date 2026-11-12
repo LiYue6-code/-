@@ -3,6 +3,7 @@ package com.employment.service;
 import com.employment.common.BizException;
 import com.employment.common.PageResult;
 import com.employment.entity.Job;
+import com.employment.mapper.JobIntentionMapper;
 import com.employment.mapper.JobMapper;
 import com.employment.query.JobQuery;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -29,6 +31,9 @@ class JobServiceTest {
 
     @Mock
     private JobMapper jobMapper;
+
+    @Mock
+    private JobIntentionMapper intentionMapper;
 
     @InjectMocks
     private JobService jobService;
@@ -80,7 +85,7 @@ class JobServiceTest {
     }
 
     @Test
-    @DisplayName("下架岗位：状态改为已截止并写库")
+    @DisplayName("下架岗位：招聘中状态改为已截止并写库")
     void offlineMarksJobClosed() {
         Job job = new Job();
         job.setId(1L);
@@ -88,19 +93,16 @@ class JobServiceTest {
         job.setStatus("招聘中");
         when(jobMapper.findById(1L)).thenReturn(job);
 
-        jobService.offline(1L);
-
-        assertEquals("已截止", job.getStatus());
-        verify(jobMapper).update(job);
+        assertNull(jobService.offline(1L));
+        verify(jobMapper).updateStatus(1L, "已截止");
     }
 
     @Test
-    @DisplayName("下架岗位：岗位不存在时不做任何写入")
+    @DisplayName("下架岗位：岗位不存在时抛出业务异常")
     void offlineIgnoresMissingJob() {
         when(jobMapper.findById(9L)).thenReturn(null);
 
-        jobService.offline(9L);
-
-        verify(jobMapper, never()).update(any());
+        assertThrows(BizException.class, () -> jobService.offline(9L));
+        verify(jobMapper, never()).updateStatus(any(), any());
     }
 }
