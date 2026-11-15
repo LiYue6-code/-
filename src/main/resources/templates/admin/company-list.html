@@ -34,7 +34,13 @@
                 <td th:text="${c.type}"></td>
                 <td th:text="${c.contact}"></td>
                 <td th:text="${c.phone}"></td>
-                <td th:text="${c.qualificationName != null ? c.qualificationName : '未上传'}"></td>
+                <td>
+                    <a th:if="${c.qualificationFile != null}"
+                       th:href="@{/admin/companies/{id}/qualification(id=${c.id})}"
+                       target="_blank"
+                       th:text="${c.qualificationName != null ? c.qualificationName : '查看资质材料'}"></a>
+                    <span th:if="${c.qualificationFile == null}" class="muted">未上传</span>
+                </td>
                 <td>
                     <span class="badge"
                           th:classappend="${c.reviewStatus == '通过' ? 'badge-success' : (c.reviewStatus == '驳回' ? 'badge-danger' : 'badge-warn')}"

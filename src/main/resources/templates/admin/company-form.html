@@ -39,10 +39,12 @@
             </div>
             <div class="form-group">
                 <label>资质材料</label>
-                <input type="file" name="qualificationFile">
-                <span class="muted" th:if="${company.qualificationName != null}"
-                      th:text="'当前：' + ${company.qualificationName}"></span>
-                <span class="muted">（营业执照等资质材料，需负责人审核通过后方可发布岗位）</span>
+                <input type="file" name="qualificationFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                <span class="muted" th:if="${company.qualificationName != null}">
+                    当前：<a th:href="@{/admin/companies/{id}/qualification(id=${company.id})}"
+                            target="_blank" th:text="${company.qualificationName}"></a>
+                </span>
+                <span class="muted">（营业执照等资质材料；支持 PDF/JPG/PNG/DOC/DOCX，单个文件不超过 10MB）</span>
             </div>
             <button type="submit" class="btn">保存</button>
         </form>

@@ -1,17 +1,29 @@
 package com.employment.controller;
 
+import com.employment.common.BizException;
+import com.employment.common.CsvExporter;
 import com.employment.entity.Company;
 import com.employment.service.CompanyService;
 import com.employment.service.FileStorageService;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.nio.file.Path;
 
 /**
  * 招聘单位管理（负责人端）：基本信息维护 + 资质材料上传与资质审核、信用状态标记。
@@ -32,6 +44,19 @@ public class CompanyController {
     public String list(Model model) {
         model.addAttribute("companies", companyService.list());
         return "admin/company-list";
+    }
+
+    /**
+     * 阻止表单字段直接绑定到实体上的「文件/审核」属性。
+     *
+     * <p>表单的文件域名为 qualificationFile，与公司实体的同名字段冲突：
+     * Spring 会尝试把 MultipartFile 绑定到 String 属性上，抛出绑定异常并返回 400。
+     * 文件统一由方法参数 {@code @RequestParam MultipartFile} 接收，这里禁止绑定。
+     */
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields("qualificationFile", "qualificationName",
+                "reviewStatus", "reviewComment", "creditStatus");
     }
 
     @GetMapping("/new")
@@ -74,8 +99,7 @@ public class CompanyController {
         return "redirect:/admin/companies";
     }
 
-    /** 资质审核：通过 / 驳回。 */
-    @PostMapping("/{id}/review")
+    /** 资质审核：通过 / 驳回。 */    @PostMapping("/{id}/review")
     public String review(@PathVariable Long id,
                          @RequestParam boolean passed,
                          @RequestParam(required = false) String comment,
@@ -112,5 +136,37 @@ public class CompanyController {
         }
         company.setQualificationFile(fileStorageService.store(file));
         company.setQualificationName(FileStorageService.originalName(file));
+    }
+
+    /**
+     * 下载或在线查看资质材料。
+     *
+     * <p>PDF 与图片以 inline 方式返回，浏览器直接打开，便于负责人审核时核对；
+     * 其他类型（Word 等）以下载方式返回。文件名使用数据库中保存的原始文件名。
+     */
+    @GetMapping("/{id}/qualification")
+    public ResponseEntity<Resource> qualification(@PathVariable Long id) {
+        Company company = companyService.get(id);
+        if (company == null) {
+            throw new BizException("单位不存在或已被删除");
+        }
+        if (company.getQualificationFile() == null || company.getQualificationFile().isBlank()) {
+            throw new BizException("该单位尚未上传资质材料，无法查看");
+        }
+        return fileResponse(company.getQualificationFile(), company.getQualificationName());
+    }
+
+    private ResponseEntity<Resource> fileResponse(String storedName, String originalName) {
+        Path path = fileStorageService.resolve(storedName);
+        String downloadName = (originalName == null || originalName.isBlank()) ? storedName : originalName;
+        MediaType mediaType = MediaTypeFactory.getMediaType(downloadName)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        boolean inline = MediaType.APPLICATION_PDF.equals(mediaType) || "image".equals(mediaType.getType());
+        String disposition = CsvExporter.attachment(downloadName)
+                .replaceFirst("^attachment", inline ? "inline" : "attachment");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .contentType(mediaType)
+                .body(new FileSystemResource(path));
     }
 }
