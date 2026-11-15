@@ -21,6 +21,7 @@
         <div class="kv">
             <div><span>学生</span><b th:text="${app.studentName}"></b></div>
             <div><span>学号</span><b th:text="${app.studentNo}"></b></div>
+            <div><span>专业</span><b th:text="${app.major == null ? '—' : app.major}"></b></div>
             <div><span>岗位</span><b th:text="${app.jobTitle}"></b></div>
             <div><span>招聘单位</span><b th:text="${app.companyName}"></b></div>
             <div><span>申请时间</span><b

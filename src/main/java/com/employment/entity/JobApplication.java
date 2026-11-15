@@ -25,11 +25,12 @@ public class JobApplication {
     private String remark;
     private LocalDateTime updateTime;
 
-    /** 冗余字段：岗位名称、单位名称、学生姓名、学号 */
+    /** 冗余字段：岗位名称、单位名称、学生姓名、学号、专业 */
     private String jobTitle;
     private String companyName;
     private String studentName;
     private String studentNo;
+    private String major;
 
     /** 冗余字段：投递所用简历标题 */
     private String resumeTitle;
@@ -192,6 +193,14 @@ public class JobApplication {
 
     public void setStudentNo(String studentNo) {
         this.studentNo = studentNo;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
     }
 
     public String getResumeTitle() {

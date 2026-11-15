@@ -8,6 +8,7 @@
         c.name AS company_name,
         s.name AS student_name,
         s.student_no AS student_no,
+        s.major AS major,
         r.title AS resume_title
     </sql>
 

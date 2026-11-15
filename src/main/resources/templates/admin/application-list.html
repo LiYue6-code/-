@@ -42,6 +42,7 @@
             <tr>
                 <th>学生</th>
                 <th>学号</th>
+                <th>专业</th>
                 <th>岗位</th>
                 <th>招聘单位</th>
                 <th>申请时间</th>
@@ -55,6 +56,7 @@
             <tr th:each="a : ${pageData.items}">
                 <td th:text="${a.studentName}"></td>
                 <td th:text="${a.studentNo}"></td>
+                <td th:text="${a.major == null ? '—' : a.major}"></td>
                 <td th:text="${a.jobTitle}"></td>
                 <td th:text="${a.companyName}"></td>
                 <td th:text="${a.applyTime == null ? '' : #temporals.format(a.applyTime, 'yyyy-MM-dd HH:mm')}"></td>
@@ -74,7 +76,7 @@
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(pageData.items)}">
-                <td colspan="9" style="text-align:center;">没有符合条件的申请记录</td>
+                <td colspan="10" style="text-align:center;">没有符合条件的申请记录</td>
             </tr>
             </tbody>
         </table>
