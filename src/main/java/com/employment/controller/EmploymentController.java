@@ -15,7 +15,9 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +46,20 @@ public class EmploymentController {
     }
 
     // ==================== 学生端 ====================
+
+    /**
+     * 阻止表单字段直接绑定到实体上的「文件/审核」属性。
+     *
+     * <p>表单的文件域名为 proofFile，与上报实体的同名字段冲突：Spring 会尝试把
+     * MultipartFile 绑定到 String 属性而抛出绑定异常（表现为 400「参数不完整」）。
+     * 文件统一由方法参数 {@code @RequestParam MultipartFile} 接收，这里禁止绑定。
+     */
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields("proofFile", "proofName", "studentId", "status",
+                "reviewComment", "reviewerId", "reviewerName", "reviewTime",
+                "resubmitCount", "updateTime", "submitTime");
+    }
 
     @GetMapping("/my/employment")
     public String my(HttpSession session, Model model) {

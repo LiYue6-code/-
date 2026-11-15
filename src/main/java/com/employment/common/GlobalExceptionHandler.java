@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
@@ -46,6 +47,15 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNotFound(Model model) {
         model.addAttribute("message", "访问的页面或资源不存在。");
+        return "error";
+    }
+
+    /** 上传文件超过容器限制：413，给出明确的中文提示（否则浏览器只看到空白的 413）。 */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public String handleUploadTooLarge(MaxUploadSizeExceededException e, Model model) {
+        log.warn("上传文件超过大小限制：{}", e.getMessage());
+        model.addAttribute("message", "上传的文件超过大小限制（单个文件最大 10MB），请压缩图片或改用较小的文件后重试。");
         return "error";
     }
 }

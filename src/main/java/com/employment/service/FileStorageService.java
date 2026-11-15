@@ -30,7 +30,7 @@ public class FileStorageService {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "jpg", "jpeg", "png", "doc", "docx");
 
     /** 单个文件大小上限：5MB */
-    private static final long MAX_SIZE = 5L * 1024 * 1024;
+    private static final long MAX_SIZE = 10L * 1024 * 1024;
 
     private final Path baseDir;
 
@@ -50,10 +50,10 @@ public class FileStorageService {
         String original = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename();
         String extension = extensionOf(original);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new BizException("证明材料仅支持 PDF、JPG、PNG、DOC、DOCX 格式");
+            throw new BizException("上传文件仅支持 PDF、JPG、PNG、DOC、DOCX 格式");
         }
         if (file.getSize() > MAX_SIZE) {
-            throw new BizException("证明材料不能超过 5MB");
+            throw new BizException("上传文件不能超过 10MB");
         }
         String storedName = UUID.randomUUID().toString().replace("-", "") + "." + extension;
         try {
@@ -77,11 +77,11 @@ public class FileStorageService {
     /** 解析存储文件路径，并做安全校验。 */
     public Path resolve(String storedName) {
         if (storedName == null || !storedName.matches("[A-Za-z0-9._-]+")) {
-            throw new BizException("证明材料不存在");
+            throw new BizException("文件不存在");
         }
         Path path = baseDir.resolve(storedName).normalize();
         if (!path.startsWith(baseDir) || !Files.isRegularFile(path)) {
-            throw new BizException("证明材料不存在或已被删除");
+            throw new BizException("文件不存在或已被删除");
         }
         return path;
     }

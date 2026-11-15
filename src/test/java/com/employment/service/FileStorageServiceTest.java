@@ -57,9 +57,9 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("超过 5MB 的文件被拒绝")
+    @DisplayName("超过 10MB 的文件被拒绝")
     void rejectOversize() {
-        byte[] big = new byte[5 * 1024 * 1024 + 1];
+        byte[] big = new byte[10 * 1024 * 1024 + 1];
         MockMultipartFile file = new MockMultipartFile("proofFile", "big.pdf",
                 "application/pdf", big);
         assertThrows(BizException.class, () -> service().store(file));
